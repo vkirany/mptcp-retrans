@@ -1,0 +1,118 @@
+\documentclass[12pt,draftcls,onecolumn]{IEEEtran}
+\usepackage[utf8]{inputenc}
+\usepackage[dvips]{graphicx}
+% Title Page
+\title{Understanding Loss recovery in MultiPath TCP }
+\author{KAU}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\end{abstract}
+
+\section{Introduction}
+TCP has two mechanisms for detecting and recovering from packet losses namely Fast Recovery (FR) and Retransmission Timeouts(RTOs). For long flows where there are sufficiently large number of packets 
+to be transferred, FR is quicker than RTOs in detecting and recovering packet losses. On the other hand shorter flows which are a majority in the web traffic have to depend on RTOs for packet loss detection 
+and recovery incurring more latency. A single packet loss in a short flow may take many RTTs to detect and recover. This scenario is also applicable to the packets at the end of the flow (or tail) in a long 
+flow.
+
+TCP Loss Probe (TLP)~\cite{ietftlp} a mechanism that allows flows to detect and recover from tail losses much faster than an RTO, thereby speeding up short transfers. With TLP a packet loss in the middle 
+of a packet train as well as at the tail end will now trigger the same fast recovery mechanisms. It assumes other algorithms such as early retransmit~\cite{rfc5827} and FACK threshold based recovery are 
+present.
+
+In Multi-path-TCP(MPTCP)~\cite{rfc6824}, a connection can have multiple TCP sub flows using different interfaces on different routes. Packet losses in each sub flow are assumed to be detected and recovered 
+in a similar fashion as that of TCP. However, It is not completely clear how the loss recovery happens in the implementation and which sub-flow retransmits the lost packets. If the recovery is handled at the 
+meta level, the lost packet may be rescheduled and retransmitted at the available sub flow with lowest RTT. If the recovery is handled at the flow level, the packet may be retransmitted in the same sub-flow. 
+
+Through this set of preliminary experiments, we would like to understand the behavior of MPTCP with and without TLP and ER by monitoring burst completion time, congestion window evolution and timeout 
+behavior.
+\section{Related Work}\label{relwork}
+
+\section{Scope}\label{scope}
+
+We try to understand the loss recovery and retransmission policies in state of the art MPTCP linux implementation.
+
+\section{Experimental Setup}\label{exsetup}
+
+Planned experiments use CORE emulation platform with a simple topology as depicted in Figure~\ref{fig1}.
+Client is connected to two wireless interfaces 3G and WLAN. Server is connected to a wired router.
+Characteristics of the connection setup and assumptions about the parameters are provided in table~\ref{tab1}.
+Traffic generation is planned with iperf, netperf and d-itg as different runs. 
+ 
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[angle=0, width=0.9\textwidth]{images/fortest.ps}
+\caption{Topology used for Emulation}\label{fig1}
+\end{center}
+\label{prl}
+\end{figure}
+\begin{center}
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|cccccccccc|}
+      \hline
+      \multicolumn{1}{c}{} & & \\[\dimexpr-\normalbaselineskip-\arrayrulewidth]
+      \textbf{Burst Size} & \multicolumn{10}{c|}{7 Packets} \\
+      \hline
+      \textbf{Separation Time} & \multicolumn{10}{c|}{2s} \\
+      \hline
+
+      \textbf{Run Length} & \multicolumn{10}{c|}{10min}\\
+      \hline 	
+      \textbf{RTT} & \multicolumn{5}{c|}{200ms(3G)} & \multicolumn{5}{c|}{20ms(WLAN)} \\
+      \hline 	
+      \textbf{Bandwidth} & \multicolumn{5}{c|}{7Mbps(3G)} & \multicolumn{5}{c|}{54Mbps(WLAN)} \\
+      \hline
+      \textbf{Loss} & \multicolumn{5}{c|}{0(3G)} & \multicolumn{5}{c|}{2\%(WLAN)} \\
+      \hline
+      \textbf{Loss Model} & \multicolumn{10}{c|}{Random}\\
+      \hline
+\end{tabular}
+\caption{Connection parameters}\label{tab1}
+\end{center}
+\end{table}
+\end{center}
+
+\section{Observations and Discussion}\label{disc}
+Preliminary experiments on CORE emulator with the setup mentioned in section\ref{exsetup} showed several cases where the behavior on losses differ.
+These cases can be categorized as 
+\begin{itemize}
+ \item SYN Loss
+ \item First packet loss (in second subflow)
+ \item RTO 
+ \item Unwanted RST 
+ \item Tail loss
+ \item Specific packet loss - in meta level and mptcp level
+
+\end{itemize}
+
+xplot analysis indicates that SYN loss triggers an RTO in the worst case and incurring a latency of 3 RTTs at the sender.
+
+\section{Tail loss scenarios}
+We tried to understand the behavior of MPTCP retransmissions at different flow levels in the following tail loss scenarios~\ref{ret3}.
+MPTCP is sensitive to path asymmetry in general due to the default scheduler being shortest RTT based scheduler. Wireshark and tcptrace
+analysis provides information on the TCP retransmissions at the meta level. mptcptrace provides information on flow sequence split at 
+subflow level. Subflow level retransmissions are difficult to test from the output of mptcptrace analysis. Further deep packet inspection
+is required to understand the losses at the subflow level.
+
+\begin{table}[]
+\centering
+\caption{Tail loss scenarios with tcp.early.retrans = 3 default}
+\label{ret3}
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+ testcase   & Asymmetry   & Metalevel          & Subflowlevel       &  \\\hline
+Tail drop 1 & 20ms - 30ms & rexmt in same path & rexmt in same path &  \\\hline
+Tail drop 2 & 30ms - 20ms & rexmt in same path & TBC                &  \\\hline
+Tail drop 3 & 20ms - 20ms & rexmt in same path & TBC                & \hline
+\end{tabular}
+\end{table}
+
+The linux sysctl setting tcp\_early\_retrans is 3 by default. This option enables both Early retransmit and TLP. 
+Further testcases should be considered with options 0 and 4. 
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{mptcp-retrans}
+\end{document} 
