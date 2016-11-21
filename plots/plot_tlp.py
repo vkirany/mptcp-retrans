@@ -25,21 +25,21 @@ margin = 0.05
 bar_width = (1-2*margin)/3
 
 
-rects1 = plt.bar(index+margin, p1pe0 , bar_width,
+rects1 = plt.bar(index+margin, p2e0 , bar_width,
                  color='b',
                  label='er=0')
 
-rects2 = plt.bar(index+margin + bar_width, p1pe3, bar_width,
+rects2 = plt.bar(index+margin + bar_width, p2e3, bar_width,
                  color='r',
                  label='er=3')
 
-rects3 = plt.bar(index+margin + 2*bar_width, p1pe4, bar_width,
+rects3 = plt.bar(index+margin + 2*bar_width, p2e4, bar_width,
                  color='g',
                  label='er=4')
 
 
 plt.xlabel('Scenarios')
-plt.ylabel('AvgDelay (ms)')
+plt.ylabel('Burst Completion Time (ms)')
 #plt.title('AvgDelay with Std. Dev ')
 plt.xticks(index+0.5,('20-20', '20-30', '30-20', '20-120', '120-20'))
 #plt.legend()
