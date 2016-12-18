@@ -1,4 +1,4 @@
-\documentclass[12pt,draftcls,onecolumn]{IEEEtran}
+\documentclass[10pt,draftcls,twocolumn]{IEEEconf}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 
@@ -47,7 +47,7 @@ There is no attempt in this study to focus on the effect of link characteristics
  
 \begin{figure}[!ht]
 \begin{center}
-\includegraphics[angle=0, width=0.9\textwidth]{images/fortest.pdf}
+\includegraphics[angle=0, width=0.45\textwidth]{images/fortest.pdf}
 \caption{Topology used for Emulation}\label{fig1}
 \end{center}
 \end{figure}
@@ -87,26 +87,62 @@ subflow. Three test cases are evaluated with one packet tail loss, two packet ta
 In Linux, TCP retransmission features are controlled by a sysctl setting tcp.early.retrans. It has 5 possible values with ranging from 0 to 4 with 3 being Linux default, enables both
 ER and TLP. For this analysis, we used 0,3 and 4. In each setting, we calculate burst completion time for two burst of 80 packets each. The setup has server and client with MPTCP
 enabled linux running on them. Client has two wireless interfaces with one way delay on each interface ranging from 20ms to 120ms. We consider 5 scenarios with delay pairings 20ms-20ms
-20ms-30ms, 20ms-120ms, 30ms-20ms, 120ms-20ms to understand the effect of delay difference in the performance. The expected retransmission behavior for different settings of ER is shown 
+20ms-30ms, 20ms-120ms, 30ms-20ms, 120ms-20ms to understand the effect of delay difference in the performance. 
+
+
+Figures ~\ref{t1p,t2p,t1pp} represent the comparison of TCP burst completion times for the two bursts from server to client.
+
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[angle=0, width=0.46\textwidth,natwidth=578.16,natheight=433.62]{plots/T1P.pdf}
+\caption{Single packet tail loss using TCP}\label{t1p}
+\end{center}
+\end{figure}
+
+
+
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[angle=0, width=0.46\textwidth,natwidth=578.16,natheight=433.62]{plots/T2P.pdf}
+\caption{Two packet tail loss using TCP}\label{t2p}
+\end{center}
+\end{figure}
+
+
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[angle=0, width=0.46\textwidth, natwidth=578.16,natheight=433.62]{plots/T1PP.pdf}
+\caption{Single packet tail loss together with probe loss using TCP}\label{t1pp}
+\end{center}
+\end{figure}
+
+
+
+
+
+
+
+
+The expected retransmission behavior for different settings of ER is shown 
 in~\ref{timingER0},~/\ref{timingER3} and ~\ref{timingER4}.
 
 \begin{figure}[!ht]
 \begin{center}
-\includegraphics[angle=0, width=0.9\textwidth, natwidth=610, natheight=400]{images/timingER0.pdf}
+\includegraphics[angle=0, width=0.45\textwidth, natwidth=610, natheight=400]{images/timingER0.pdf}
 \end{center}
 \caption{Timing diagram of different tail loss scenarios in sysctl ER=0}\label{timingER0}
 \end{figure}
 
 \begin{figure}[!ht]
 \begin{center}
-\includegraphics[angle=0, width=0.9\textwidth, natwidth=610, natheight=400]{images/timingER3.pdf}
+\includegraphics[angle=0, width=0.45\textwidth, natwidth=610, natheight=400]{images/timingER3.pdf}
 \end{center}
 \caption{Timing diagram of different tail loss scenarios in sysctl ER=3}\label{timingER3}
 \end{figure}
 
 \begin{figure}[!ht]
 \begin{center}
-\includegraphics[angle=0, width=0.9\textwidth, natwidth=610, natheight=400]{images/timingER4.pdf}
+\includegraphics[angle=0, width=0.45\textwidth, natwidth=610, natheight=400]{images/timingER4.pdf}
 \end{center}
 \caption{Timing diagram of different tail loss scenarios in sysctl ER=4}\label{timingER4}
 \end{figure}
@@ -131,8 +167,8 @@ depicted in Figures~\ref{timingER0,timintER3,timingER4}.
 
 \begin{figure}[!ht]
 \begin{center}
-\includegraphics[angle=0, width=0.9\textwidth,natwidth=578.16,natheight=433.62]{plots/1P.pdf}
-\caption{Single packet tail loss}\label{1p}
+\includegraphics[angle=0, width=0.46\textwidth,natwidth=578.16,natheight=433.62]{plots/1P.pdf}
+\caption{Single packet tail loss using MPTCP}\label{1p}
 \end{center}
 \end{figure}
 
@@ -144,8 +180,8 @@ In this case, ER=3 setting performs better than the other two settings in all sc
 
 \begin{figure}[!ht]
 \begin{center}
-\includegraphics[angle=0, width=0.9\textwidth,natwidth=578.16,natheight=433.62]{plots/2P.pdf}
-\caption{Two packet tail loss}\label{2p}
+\includegraphics[angle=0, width=0.46\textwidth,natwidth=578.16,natheight=433.62]{plots/2P.pdf}
+\caption{Two packet tail loss using MPTCP}\label{2p}
 \end{center}
 \end{figure}
 
@@ -154,40 +190,10 @@ setting results much lower burst completion times.
 
 \begin{figure}[!ht]
 \begin{center}
-\includegraphics[angle=0, width=0.9\textwidth, natwidth=578.16,natheight=433.62]{plots/1PP.pdf}
-\caption{Single packet tail loss together with probe loss}\label{1pp}
+\includegraphics[angle=0, width=0.46\textwidth, natwidth=578.16,natheight=433.62]{plots/1PP.pdf}
+\caption{Single packet tail loss together with probe loss using MPTCP}\label{1pp}
 \end{center}
 \end{figure}
-
-
-Figures ~\ref{t1p,t2p,t1pp} represent the comparison of MPTCP and TCP burst completion times for the two bursts from server to client.
-
-\begin{figure}[!ht]
-\begin{center}
-\includegraphics[angle=0, width=0.9\textwidth,natwidth=578.16,natheight=433.62]{plots/T1P.pdf}
-\caption{Single packet tail loss}\label{t1p}
-\end{center}
-\end{figure}
-
-
-
-\begin{figure}[!ht]
-\begin{center}
-\includegraphics[angle=0, width=0.9\textwidth,natwidth=578.16,natheight=433.62]{plots/T2P.pdf}
-\caption{Two packet tail loss}\label{t2p}
-\end{center}
-\end{figure}
-
-
-\begin{figure}[!ht]
-\begin{center}
-\includegraphics[angle=0, width=0.9\textwidth, natwidth=578.16,natheight=433.62]{plots/T1PP.pdf}
-\caption{Single packet tail loss together with probe loss}\label{t1pp}
-\end{center}
-\end{figure}
-
-
-
 
 
 

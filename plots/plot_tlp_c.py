@@ -43,37 +43,37 @@ fig, ax = plt.subplots()
 index = np.arange(n_groups)
 
 margin = 0.05
-bar_width = (1-2*margin)/8
+bar_width = (1-2*margin)/3
 
 
-rects1 = plt.bar(index+margin, p1pe0 , bar_width,
+rects1 = plt.bar(index+margin, tp2e0 , bar_width,
                  color='b',
                  label='er=0')
 
-rects2 = plt.bar(index+margin + bar_width, p1pe2 , bar_width,
-                 color='m',
+rects2 = plt.bar(index+margin + bar_width, tp2e2 , bar_width,
+                 color='g',
                  label='er=2')
 
-rects3 = plt.bar(index+margin + 2*bar_width, p1pe3, bar_width,
+rects3 = plt.bar(index+margin + 2*bar_width, tp2e3, bar_width,
                  color='r',
                  label='er=3')
 
-rects4 = plt.bar(index+margin + 3*bar_width, p1pe4, bar_width,
-                 color='g',
-                 label='er=4')
+#rects4 = plt.bar(index+margin + 3*bar_width, p1pe4, bar_width,
+#                 color='g',
+#                 label='er=4')
 
-rects5 = plt.bar(index+margin + 4*bar_width, tp1pe0, bar_width,
-                 color='c',
-                 label='ter=0')
-rects6 = plt.bar(index+margin + 5*bar_width, tp1pe2, bar_width,
-                 color='y',
-                 label='ter=2')
-rects7 = plt.bar(index+margin + 6*bar_width, tp1pe3, bar_width,
-                 color='k',
-                 label='ter=3')
-rects8 = plt.bar(index+margin + 7*bar_width, tp1pe4, bar_width,
-                 color='#B47CC7',
-                 label='ter=4')
+#rects5 = plt.bar(index+margin + 4*bar_width, tp1pe0, bar_width,
+#                 color='c',
+#                 label='ter=0')
+#rects6 = plt.bar(index+margin + 5*bar_width, tp1pe2, bar_width,
+#                 color='y',
+#                 label='ter=2')
+#rects7 = plt.bar(index+margin + 6*bar_width, tp1pe3, bar_width,
+#                 color='k',
+#                 label='ter=3')
+#rects8 = plt.bar(index+margin + 7*bar_width, tp1pe4, bar_width,
+#                 color='#B47CC7',
+#                 label='ter=4')
 
 
 plt.xlabel('Scenarios')
@@ -82,7 +82,7 @@ plt.ylabel('Burst Completion Time (ms)')
 plt.xticks(index+0.5,('20-20', '20-30', '30-20', '20-120', '120-20'))
 #plt.legend()
 plt.tight_layout()
-plt.ylim(0,1850)
+plt.ylim(0,1350)
 plt.legend(loc='upper center', bbox_to_anchor=(0.5, 1.05), ncol=4)
 plt.savefig('Delay.pdf')
 
