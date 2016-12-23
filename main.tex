@@ -93,10 +93,16 @@ In each setting, we calculate burst completion time for two bursts of 80 packets
 interfaces with one way delay on each interface ranging from 20ms to 120ms. We consider 5 scenarios with delay pairings 20ms-20ms, 20ms-30ms, 20ms-120ms, 30ms-20ms, 120ms-20ms to understand 
 the effect of delay difference in the performance. These scenarios are choosen to evaluate the effect of symmetry, mild asymmetry and higher asymmetry in link delays. 
 
+\section{Observations and Discussion}\label{disc}
 
 Retransmission behavior of TCP is seen a base case for MPTCP performance as each individual MPTCP subflow is a TCP flow in itself. Our analysis
 starts with the results using TCP and compares it with that of the MPTCP. Figures ~\ref{t1p},~\ref{t2p},~\ref{t1pp} represent the comparison of TCP 
-burst completion times.
+burst completion times. Path asymmetry is irrelevant as the TCP uses single path.
+
+In the case of single packet tail loss, there is no difference in burst completion times of ER setting 0,2 and 3. All the cases depend on the RTO
+to recover from loss. In two packet tail loss case, ER setting 0 and 2 have similar performance while ER setting 3 improves burst completion time
+by using TLP. If the probe or retransmission is lost, then ER 3 still performs better than 0 and 2 as it waits for one RTO and one probe timeout
+instead of two RTOs in other two cases.
 
 \begin{figure}[!ht]
 \begin{center}
@@ -121,12 +127,6 @@ burst completion times.
 \caption{Single packet tail loss together with probe loss using TCP}\label{t1pp}
 \end{center}
 \end{figure}
-
-
-
-
-
-
 
 
 The expected retransmission behavior of MPTCP for different settings of ER is shown 
@@ -155,21 +155,13 @@ in~\ref{timingER0},~\ref{timingER2} and ~\ref{timingER3}.
 
 
 
-
-
-
-\section{Observations and Discussion}\label{disc}
-
 Experiments performed on CORE emulator with the setup mentioned in section\ref{exsetup}.
 MPTCP is sensitive to path asymmetry in general due to the default scheduler being shortest RTT based scheduler. Wireshark and tcptrace
-analysis provides information on the TCP retransmissions at the meta level. mptcptrace provides information on flow sequence split at 
-subflow level. Subflow level retransmissions are difficult to test from the output of mptcptrace analysis. Further deep packet inspection
-required to understand the losses at the subflow level. 
+analysis provides information on the TCP retransmissions at the subflow level.  
 
 
 Figure~\ref{1p} provides burst completion time comparison of different ER sysctl settings considered with one packet loss. The results show the improvements
-in burst completion time with ER and TLP enabled compared to both disabled only when there is delay difference. The retransmission of lost packet follows the behavior 
-depicted in Figures~\ref{timingER0,timintER3,timingER4}.
+in burst completion time with ER and TLP enabled compared to both disabled only when there is delay difference.
 
 \begin{figure}[!ht]
 \begin{center}
@@ -178,7 +170,7 @@ depicted in Figures~\ref{timingER0,timintER3,timingER4}.
 \end{center}
 \end{figure}
 
-In packet trace inspection, it is easy to check the use of TLP with two packet tail loss. The last packet will be retransmitted first in this case.
+In packet trace inspection, it is easy to observe the use of TLP with two packet tail loss. The last packet will be retransmitted first in this case.
 With one packet tail loss one has to compare the RTT and last packet retransmission time to check the use of TLP.
 To further validate the results with one packet tail loss, we consider two packet tail loss and the results are shown in~\ref{2p}.
 In this case, ER=3 setting performs better than the other two settings in all scenarios except when the packets lost on high delay interface. 
@@ -192,7 +184,12 @@ In this case, ER=3 setting performs better than the other two settings in all sc
 \end{figure}
 
 To further study the performance of TLP in improving latency, we tried to drop the probe packet along with the last packet. In this case ER=0
-setting results much lower burst completion times. 
+setting results much lower burst completion times. Use of TLP did not improve the burst completion time as we saw in TCP for ER=3. The reason
+lies in the way the retransmission and loss probe transmission carried out in MPTCP. Retransmission occurs after an RTO time on both paths.
+Even if retransmission fails on one path, the client receives the packet on the other path as shown in Fig~\ref{timingER0}. For TLP, in
+current implementation, the loss probe sent on the actual path of first transmission but not on both paths. This incorrect impartation of
+TLP from TCP to MPTCP led to the increase burst completion time by an RTO for MPTCP. 
+
 
 \begin{figure}[!ht]
 \begin{center}
@@ -205,57 +202,57 @@ setting results much lower burst completion times.
 
 
 
-\begin{table}[!ht]
-\centering
-\caption{Tail loss scenarios with tcp.early.retrans = 3 default}
-\label{ret3}
-\begin{tabular}{|l|l|l|l|l|}
-\hline
- testcase   & Asymmetry   & Metalevel          & Subflowlevel       &  \\\hline
-Tail drop 1 & 20ms - 30ms & rexmt in same path & rexmt in same path &  \\\hline
-Tail drop 2 & 30ms - 20ms & rexmt in same path & TBC                &  \\\hline
-Tail drop 3 & 20ms - 20ms & rexmt in same path & TBC                &  \\ \hline
-\end{tabular}
-\end{table}
+%\begin{table}[!ht]
+%\centering
+%\caption{Tail loss scenarios with tcp.early.retrans = 3 default}
+%\label{ret3}
+%\begin{tabular}{|l|l|l|l|l|}
+%\hline
+% testcase   & Asymmetry   & Metalevel          & Subflowlevel       &  \\\hline
+%Tail drop 1 & 20ms - 30ms & rexmt in same path & rexmt in same path &  \\\hline
+%Tail drop 2 & 30ms - 20ms & rexmt in same path & TBC                &  \\\hline
+%Tail drop 3 & 20ms - 20ms & rexmt in same path & TBC                &  \\ \hline
+%\end{tabular}
+%\end{table}
 
 
 
 
 
-\begin{table}[!ht]
-\centering
-\caption{Tail loss scenarios with tcp.early.retrans = 0 ER disabled}
-\label{ret0}
-\begin{tabular}{|l|l|l|l|l|}
-\hline
- testcase   & Asymmetry   & Metalevel          & Subflowlevel       &  \\\hline
-Tail drop 1 & 20ms - 30ms & rexmt in same path & rexmt in same path &  \\\hline
-Tail drop 2 & 30ms - 20ms & rexmt in same path & TBC                &  \\\hline
-Tail drop 3 & 20ms - 20ms & rexmt in same path & TBC                & \\ \hline
-Tail drop 4 & 20ms - 120ms &  			&		&  \\ \hline
-Tail drop 5 & 120ms - 20ms &  			& 		& \\ \hline 
-\end{tabular}
-\end{table}
+%\begin{table}[!ht]
+%\centering
+%\caption{Tail loss scenarios with tcp.early.retrans = 0 ER disabled}
+%\label{ret0}
+%\begin{tabular}{|l|l|l|l|l|}
+%\hline
+% testcase   & Asymmetry   & Metalevel          & Subflowlevel       &  \\\hline
+%Tail drop 1 & 20ms - 30ms & rexmt in same path & rexmt in same path &  \\\hline
+%Tail drop 2 & 30ms - 20ms & rexmt in same path & TBC                &  \\\hline
+%Tail drop 3 & 20ms - 20ms & rexmt in same path & TBC                & \\ \hline
+%Tail drop 4 & 20ms - 120ms &  			&		&  \\ \hline
+%Tail drop 5 & 120ms - 20ms &  			& 		& \\ \hline 
+%\end{tabular}
+%\end{table}
 
 
-\begin{table}[!ht]
-\centering
-\caption{Tail loss scenarios with tcp.early.retrans = 4 TLP disabled}
-\label{ret4}
-\begin{tabular}{|l|l|l|l|l|}
-\hline
- testcase   & Asymmetry   & Metalevel          & Subflowlevel       &  \\\hline
-Tail drop 1 & 20ms - 30ms & rexmt in same path & rexmt in same path &  \\\hline
-Tail drop 2 & 30ms - 20ms & rexmt in same path & TBC                &  \\\hline
-Tail drop 3 & 20ms - 20ms & rexmt in same path & TBC                & \\ \hline
-\end{tabular}
-\end{table}
+%\begin{table}[!ht]
+%\centering
+%\caption{Tail loss scenarios with tcp.early.retrans = 4 TLP disabled}
+%\label{ret4}
+%\begin{tabular}{|l|l|l|l|l|}
+%\hline
+% testcase   & Asymmetry   & Metalevel          & Subflowlevel       &  \\\hline
+%Tail drop 1 & 20ms - 30ms & rexmt in same path & rexmt in same path &  \\\hline
+%Tail drop 2 & 30ms - 20ms & rexmt in same path & TBC                &  \\\hline
+%Tail drop 3 & 20ms - 20ms & rexmt in same path & TBC                & \\ \hline
+%\end{tabular}
+%\end{table}
 
 
-\section{Improvements to TLP}
+\section{Improvments to TLP for MPTCP}
 The goal of Tail Loss Probe(TLP) is to reduce tail latency of short flows. It achieves this by converting retransmission timeouts (RTOs) occuring due to tail losses (losses at end of transactions) into fast recovery. TLP transmits one packet in two round-trips when a connection is in Open state and isn't receiving any ACKs. The transmitted packet, aka loss probe, can be either new or a retransmission. When there is tail loss, the ACK from a loss probe triggers FACK/early-retransmit based fast recovery, thus avoiding a costly retransmission timeout. Our results show that current TLP implementation does not improve the performance in MPTCP and incur more latency.
 
-Current implementation of TLP is at the TCP flow level. In the event of RTO timeout the MPTCP retransmission happens with a reinjection in to scheduler along with sending lost packet on the same path. But in the Event of Probe timeout, the lost packet is being sent on the same path without injecting in to scheduler.  Modifications should reinject the lost packet in to the mptcp scheduler in the event of PTO.
+Current implementation of TLP is at the TCP flow level. In the event of RTO timeout the MPTCP retransmission happens with a reinjection in to scheduler along with sending lost packet on the same path. But in the Event of Probe timeout, the loss probe packet is being sent on the same path without injecting in to scheduler.  Modifications should reinject the probe packet in to the mptcp scheduler in the event of PTO.
 
 \subsection{Example scenario where MPTCP TLP could incur more latency}
 
