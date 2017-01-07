@@ -283,7 +283,31 @@ Loss probe timer used in Linux: ${ICSK\_TIME\_LOSS\_PROBE}$.
 \section{Evaluation of proposal}
 
 Initial testing with customized program to send bursts of packets with fixed burst seperation. Adjust the burst seperation to get the desired scenario.
+Results comparing the MPTCP-TLP for the considered cases are provided in figures~\ref{1pn},~\ref{2pn} and ~\ref{1ppn}. The improvement in latency
+performance is seen Single packet tail loss with probe loss scenario. Single packet loss and Two packet loss scenarios provide increase in latency.
+Analysis required in these two cases.
 
+
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[angle=0, width=0.46\textwidth, natwidth=578.16,natheight=433.62]{plots/1PNew.pdf}
+\caption{Single packet tail loss comparision with MPTCP-TLP}\label{1pn}
+\end{center}
+\end{figure}
+
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[angle=0, width=0.46\textwidth, natwidth=578.16,natheight=433.62]{plots/2PNew.pdf}
+\caption{Two packet tail loss comparison with MPTCP-TLP}\label{2pn}
+\end{center}
+\end{figure}
+
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[angle=0, width=0.46\textwidth, natwidth=578.16,natheight=433.62]{plots/1PPNew.pdf}
+\caption{Single packet tail loss together with probe loss with MPTCP-TLP}\label{1ppn}
+\end{center}
+\end{figure}
 
 
 
