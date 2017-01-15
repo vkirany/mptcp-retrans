@@ -27,15 +27,15 @@ In Multi-path-TCP(MPTCP)~\cite{rfc6824}, a connection can have multiple TCP sub 
 in a similar fashion as that of TCP. However, It is not completely clear how the loss recovery happens in the implementation and which sub-flow retransmits the lost packets. If the recovery is handled at the 
 meta level, the lost packet may be rescheduled and retransmitted at the available sub flow with lowest RTT. If the recovery is handled at the flow level, the packet may be retransmitted in the same sub-flow. 
 
-Through this set of preliminary experiments, we would like to understand the behavior of MPTCP with and without TLP and ER by monitoring burst completion time, congestion window evolution and timeout 
-behavior.
+
+
 
 \section{Related Work}\label{relwork}
 TBD.
 \section{Scope}\label{scope}
 
-We try to understand the loss recovery and retransmission policies in state of the art MPTCP linux implementation version 0.91. As per the specification of Multipath TCP introduced in 
-MPTCP features acknowledgements at connection-level as well as subflow-level, in order to provide a robust transport service to the application.
+This paper presents the state of the art loss recovery mechanism of MPTCP and presents case for improvement in the tail loss scenario. For understanding the loss recovery and retransmission policies 
+in state of the art MPTCP linux implementation version 0.91, we consider specific cases of tail losses.  
 
 
 \section{Experimental Setup}\label{exsetup}
@@ -95,6 +95,8 @@ the effect of delay difference in the performance. These scenarios are choosen t
 
 \section{Observations and Discussion}\label{disc}
 
+
+\subsection{TCP}
 Retransmission behavior of TCP is seen a base case for MPTCP performance as each individual MPTCP subflow is a TCP flow in itself. Our analysis
 starts with the results using TCP and compares it with that of the MPTCP. Figures ~\ref{t1p},~\ref{t2p},~\ref{t1pp} represent the comparison of TCP 
 burst completion times. Path asymmetry is irrelevant as the TCP uses single path.
@@ -128,29 +130,31 @@ instead of two RTOs in other two cases.
 \end{center}
 \end{figure}
 
+\subsection{MPTCP}
+
 
 The expected retransmission behavior of MPTCP for different settings of ER is shown 
-in~\ref{timingER0},~\ref{timingER2} and ~\ref{timingER3}.
+in~\ref{timing1P},~\ref{timing1PP} and ~\ref{timing2P}.
 
 \begin{figure}[!ht]
 \begin{center}
-\includegraphics[angle=0, width=0.45\textwidth, natwidth=610, natheight=400]{images/timingER0.pdf}
+\includegraphics[angle=0, width=0.45\textwidth, natwidth=610, natheight=400]{images/timing1P.pdf}
 \end{center}
-\caption{Timing diagram of different tail loss scenarios in sysctl ER=0}\label{timingER0}
+\caption{Timing diagram of MPTCP behavior with one packet tail loss a) STD b) LIN}\label{timing1P}
 \end{figure}
 
 \begin{figure}[!ht]
 \begin{center}
-\includegraphics[angle=0, width=0.45\textwidth, natwidth=610, natheight=400]{images/timingER2.pdf}
+\includegraphics[angle=0, width=0.45\textwidth, natwidth=610, natheight=400]{images/timing1PP.pdf}
 \end{center}
-\caption{Timing diagram of different tail loss scenarios in sysctl ER=2}\label{timingER2}
+\caption{Timing diagram of MPTCP behavior with one packet and next probe loss a) STD b) LIN}\label{timing1PP}
 \end{figure}
 
 \begin{figure}[!ht]
 \begin{center}
-\includegraphics[angle=0, width=0.45\textwidth, natwidth=610, natheight=400]{images/timingER3.pdf}
+\includegraphics[angle=0, width=0.45\textwidth, natwidth=610, natheight=400]{images/timing2P.pdf}
 \end{center}
-\caption{Timing diagram of different tail loss scenarios in sysctl ER=3}\label{timingER3}
+\caption{Timing diagram of MPTCP behavior with two packet tail loss a) STD b) LIN}\label{timing2P}
 \end{figure}
 
 
@@ -186,7 +190,7 @@ In this case, ER=3 setting performs better than the other two settings in all sc
 To further study the performance of TLP in improving latency, we tried to drop the probe packet along with the last packet. In this case ER=0
 setting results much lower burst completion times. Use of TLP did not improve the burst completion time as we saw in TCP for ER=3. The reason
 lies in the way the retransmission and loss probe transmission carried out in MPTCP. Retransmission occurs after an RTO time on both paths.
-Even if retransmission fails on one path, the client receives the packet on the other path as shown in Fig~\ref{timingER0}. For TLP, in
+Even if retransmission fails on one path, the client receives the packet on the other path as shown in Fig~\ref{timing1P}. For TLP, in
 current implementation, the loss probe sent on the actual path of first transmission but not on both paths. This incorrect impartation of
 TLP from TCP to MPTCP led to the increase burst completion time by an RTO for MPTCP. 
 
@@ -258,27 +262,6 @@ Current implementation of TLP is at the TCP flow level. In the event of RTO time
 
 Use a traffic pattern where there is new burst to send before the RTO after a tail loss triggering TLP on a flow.
 
-
-\section{Proposed changes and expected implications}
-
-
-\subsection{Implementation Plan}
-
-Things to do:
-
-
-
-When PTO fires: in code trigger call on PTO in tcp level
-It calls ${tcp\_push\_one()}$ in tcp-output.c and then ${mptcp\_write\_xmit()}$.
-As it is reinjection (due to only one case currently in MPTCP), that packet will have path mask
-to put it on the same subflow. Here we need to add a case for reinjection due to PTO that should
-send the packet to $reinject\_queue$ of ${mptcp\_cb}$ as well.
-
-
-Main flow packet queue and subflow packet queue: ${meta\_sk}$ refers to the
-main mptcp flow.
-
-Loss probe timer used in Linux: ${ICSK\_TIME\_LOSS\_PROBE}$.
 
 \section{Evaluation of proposal}
 
