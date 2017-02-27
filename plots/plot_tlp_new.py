@@ -5,18 +5,18 @@ import matplotlib.pyplot as plt
 
 n_groups = 5 
 
-p1e3=(433,482,463,443,592)
-p2e3=(301,352,355,362,676)
-p1pe3=(646,742,668,698,957)
+p1e3=(386,432,463,394,928)
+p2e3=(277,280,356,288,1148)
+p1pe3=(627,680,667,639,1442)
 
 
-np1e3=(423,390,453,389,581)
-np2e3=(303,407,407,403,674)
-np1pe3=(423,483,452,443,581)
+np1e3=(385,432,451,394,827)
+np2e3=(231,243,272,288,752)
+np1pe3=(385,443,451,499,827)
 
-tp1e3=(491,490,541,491,1003)
-tp2e3=(462,460,533,462,1187)
-tp1pe3=(748,748,807,747,1375)
+tp1e3=(474,474,540,474,1612)
+tp2e3=(326,326,533,326,1645)
+tp1pe3=(722,722,808,722,2103)
 
 
 
@@ -28,15 +28,15 @@ margin = 0.05
 bar_width = (1-2*margin)/3
 
 
-rects1 = plt.bar(index+margin, p1pe3 , bar_width,
+rects1 = plt.bar(index+margin, p2e3 , bar_width,
                  color='b',
                  label='mptcp')
 
-rects2 = plt.bar(index+margin + bar_width, np1pe3 , bar_width,
+rects2 = plt.bar(index+margin + bar_width, np2e3 , bar_width,
                  color='g',
                  label='mptcp-New')
 
-rects3 = plt.bar(index+margin + 2*bar_width, tp1pe3, bar_width,
+rects3 = plt.bar(index+margin + 2*bar_width, tp2e3, bar_width,
                  color='r',
                  label='tcp')
 
