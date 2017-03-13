@@ -1,5 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib 
+
+matplotlib.rc('axes',labelsize=18)
+matplotlib.rc('xtick',labelsize=14)
+matplotlib.rc('ytick', labelsize=14)
+
 
 #data = np.loadtxt(sys.argv[1])
 
@@ -46,15 +52,15 @@ margin = 0.05
 bar_width = (1-2*margin)/3
 
 
-rects1 = plt.bar(index+margin, p2e0 , bar_width,
+rects1 = plt.bar(index+margin, p1e0 , bar_width,
                  color='b',
                  label='er=0')
 
-rects2 = plt.bar(index+margin + bar_width, p2e2 , bar_width,
+rects2 = plt.bar(index+margin + bar_width, p1e2 , bar_width,
                  color='g',
                  label='er=2')
 
-rects3 = plt.bar(index+margin + 2*bar_width, p2e3, bar_width,
+rects3 = plt.bar(index+margin + 2*bar_width, p1e3, bar_width,
                  color='r',
                  label='er=3')
 

@@ -1,7 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
 
-#data = np.loadtxt(sys.argv[1])
+matplotlib.rc('axes',labelsize=18)
+matplotlib.rc('xtick',labelsize=14)
+matplotlib.rc('ytick', labelsize=14)
 
 n_groups = 5 
 
@@ -28,15 +31,15 @@ margin = 0.05
 bar_width = (1-2*margin)/3
 
 
-rects1 = plt.bar(index+margin, p2e3 , bar_width,
+rects1 = plt.bar(index+margin, p1pe3 , bar_width,
                  color='b',
                  label='mptcp')
 
-rects2 = plt.bar(index+margin + bar_width, np2e3 , bar_width,
+rects2 = plt.bar(index+margin + bar_width, np1pe3 , bar_width,
                  color='g',
                  label='mptcp-New')
 
-rects3 = plt.bar(index+margin + 2*bar_width, tp2e3, bar_width,
+rects3 = plt.bar(index+margin + 2*bar_width, tp1pe3, bar_width,
                  color='r',
                  label='tcp')
 
