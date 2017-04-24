@@ -79,7 +79,7 @@ This would seem a suitable paper for a workshop, although perhaps the impact of 
 
 \textbf{Response}
 
-We agree with the reviewer that paper is not comprehensive in studying the effect of the proposed mechanism for various traffic scenarios in the Internet. We considered that for our future research work and the corresponding text is updated.
+We agree with the reviewer that paper is not comprehensive (due to page limitations) in studying the effect of the proposed mechanism for various traffic scenarios in the Internet. We considered a comprehensive study for our future research work and we try to clarify that in the Conclusions section.
 
 \clearpage
 
@@ -130,13 +130,14 @@ For actually evaluating the proposed technique more comprehensive studies would 
 
 We plan to address the following points from the comments:\\
 
-1. Expand Section 5 to elaborate the contribution of the paper to enhance readability.\\
-2. RTO is used mainly to suggest that it is the standard (not Linux) TCP retransmission policy. RTO is used to elevate the importance of RTO timer in the retransmission policy.\\
-3. In the case of Figure 2 b), PTO is very close to RTO and the second packet is recovered with ER when TLP is used unlike resending all unacked packets on RTO. \\
+1. Expanded Section 5 to elaborate the contribution of the paper to enhance readability.\\
+2. We updated the text in Section 4 by clearly mentioning RTO timer and RTO retransmission policy to enhance readability.\\
+3. In the case of Figure 2 b), PTO is very close to RTO and the second packet is recovered with ER which has a small delay when TLP is used, unlike resending all unacked packets on RTO expiration. Corresponding explanation is included in Section 4.1 \\
 4. Due to the page limit constraints, it is not feasible to provide the figures for asymmetric delays. However the current figures could be updated to enhance the visualization. \\
-   Cli-I1 is Client Interface 1. It could be changed to Inf1-Client. We have simplified the timing figures to make it clean. \\
-5. All transmissions are limited by congestion window and that covers the increased load scenario. We consider the suggestion for our future research.\\
-6. We try to enhance the readability by careful proof reading.\\
+   Cli-I1 is Client Interface 1. It could be changed to Client(I1). We have simplified the timing figures to make it clean. \\
+5. MPTCP-New has currently no heuristics. We clarify that in Section 5.
+6. In relation to increased load, all transmissions are still limited by the cwnd and the overhead does not create congestion. We consider the suggestion on comprehensive analysis for our future research.\\
+7. We try to enhance the readability by careful proof reading.\\
 
 
 
@@ -213,7 +214,7 @@ Overall it is a nice paper that would benefit from several clarifications. The w
 
 
 We plan to address the following points from the comments:\\
-1. Introduction section update to include importance of tail loss, the problem and gist of results.\\
+1. Introduction section is updated to include importance of addressing the problem of tail losses in the network traffic and gist of results.\\
 2. Path asymmetry is important as the paper considers deterministic packet loss in primary path. We will try and clarify the difference between the scenarios in the text.\\
 3. Figure 2 is discussed in Section 4.1 and we update the text to clarify the question on figure 2 (b).\\
 4. We try to update the Section 2 to provide more clarity on the working details of TLP. \\
