@@ -1,0 +1,227 @@
+\documentclass[a4paper,twoside,11pt]{reviewresponse}
+
+% 1. Load and set up proper language packages
+\usepackage[utf8x]{inputenc}
+%\usepackage[latin9]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+
+% 2. Complete the paper data
+\newcommand{\myAuthors}{{Kiran~Yedugundla, Per~Hurtig, Anna~Brunstrom}}
+\newcommand{\myAuthorsShort}{Kiran~et. al}
+%\newcommand{\myEmail}{kiran.yedugundla@kau.se}
+\newcommand{\myTitle}{Probe or Wait: Handling tail losses using Multipath TCP}
+\newcommand{\myShortTitle}{Response to reviewers}
+\newcommand{\myJournal}{IFIP Networking - FIT Workshop 2017}
+\newcommand{\myDept}{{$^{\displaystyle 1}$Department of Computer Science, Karlstad University, Karlstad, Sweden. }}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\usepackage[linktoc=all]{hyperref}
+%\usepackage[linktoc=all,bookmarks,bookmarksopen=true,bookmarksnumbered=true]{hyperref}
+
+\hypersetup{
+pdfauthor = {\myAuthorsShort},
+pdftitle = {\myTitle},
+pdfsubject = {\myJournal},
+colorlinks = true,
+linkcolor=black!70!green,          % color of internal links
+citecolor=black!70!green,        % color of links to bibliography
+filecolor=magenta,      % color of file links
+urlcolor=black!70!green           % color of external links
+}
+
+\newcommand{\ab}[1]{\textcolor{red}{{\sf AB: #1}}}
+
+\begin{document}
+
+\thispagestyle{plain}
+
+\begin{center}
+ {\LARGE\myTitle} \vspace{0.5cm} \\
+ {\large\myShortTitle} \vspace{0.5cm}\\
+ {\large\myJournal} \vspace{0.5cm} \\
+ \today \vspace{0.5cm} \\
+ \myAuthors \\
+ %\url{\myEmail} \vspace{1cm} \\
+ \small\myDept
+\end{center}
+
+%\tableofcontents
+
+\begin{abstract}
+We thank the anonymous reviewers for their efforts and valuable feedback. 
+In this document, we propose changes to the draft in response to comments/suggestions received from reviewers.
+
+\end{abstract}
+
+\clearpage
+\section{Reviewer 1}
+\setcounter{reviewer} {1}
+\rsum{
+Paper Summary:
+Authors evaluate the current use of tail loss probe (TLP) in the context of Linux MPTCP implementation, and propose a modification that improves the flow completion times of MPTCP connections when faced with tail losses.
+
+Strengths: What are the major reasons to accept the paper? [Be  brief.]
+
+The paper identifies a specific issue, and proposes a clear \& easy to comprehend enhancement to existing Linux MPTCP implementation of TLP. The results appear to be positive.
+
+*** Weaknesses: What are the most important reasons NOT to accept the paper? [Be brief.]
+
+The experimental analysis does not appear exhaustive (or if it was, this doesn't really come through in the presentation). But having said that, the analysis appears *sufficient* for this workshop's purposes.
+
+ *** Detailed Comments: Please provide detailed comments that will be helpful to the TPC for assessing the paper. Also provide feedback to the authors.
+
+The paper's writing is easy to read, their contribution is clear and succinct. From page 5: "We propose [...] re-injecting the probe packet in to the MPTCP scheduler in the event of PTO. [...] It is expected that this modification is useful when the alternate path has lower delay than the packet original transmission path or when there is longer path interruption."
+
+This would seem a suitable paper for a workshop, although perhaps the impact of their proposed enhancement is not explored as much as we might wish. In particular, it would have been stimulating to get a bigger-picture impact of current MPTCP use of TLP on applications and their end-users. This would help put the paper's proposed enhancement into context (i.e. what degree of difference will it make in how the Internet works tomorrow?)
+}
+
+\textbf{Response}
+
+We agree with the reviewer that paper is not comprehensive in studying the effect of the proposed mechanism for various traffic scenarios in the Internet. Although we considered that for our future research work, it is not feasible to incorporate in this paper due to the page limitation.
+
+\clearpage
+
+\section{Reviewer 2}
+\setcounter{reviewer} {2}
+\rsum{
+ *** Paper summary: Paper summary
+
+This paper proposes a modified error recovery heuristic for Multipath TCP. The authors show that a small change of the tail loss probe handling can improve the completion time of data transfers compared to the existing algorithms used by the Linux Multipath TCP implementation. The benefits are demonstrated by a number of measurements using a simple workload and simple, static network scenarios.
+
+*** Strengths: What are the major reasons to accept the paper? [Be brief.]
+
+The paper is a short but solid study on a timely topic.
+
+*** Weaknesses: What are the most important reasons NOT to accept the paper? [Be brief.]
+
+For actually evaluating the proposed technique more comprehensive studies would be useful.
+}
+\rcomment{
+
+*** Detailed Comments: Please provide detailed comments that will be helpful to the TPC for assessing the paper. Also provide feedback to the authors.
+
+- The Section 1 and 2 are comparatively detailed and long compared to Section 5, which is the key contribution of the paper. A final version could expand more in Section 5, which is short and not easy to follow.
+
+- The of the acronym "RTO" both for a timer and for a retranmission algorithm is a bit confusing
+
+- In Figure 2, is there a reason for the small increase for TLP in Subfigure (b) 120ms?
+
+- Figure 3 and 5 are not easy to parse and could be improved:
+
+  * In general, as these figures are essential for understanding the paper, the visualization could be expanded to better highlight differences and possibly suboptimal behavior.
+
+  * For instance, the sequence chart in Figure 3 and (in particular) 5 seem to show the case with symmetric delays (same delivery delay on both paths). It could be interesting to have a look at the sequence charts for asymmetric delays.
+
+  * The terms "Cli-l1" and "Cli-l2" are not intuitive.
+
+  * If the retransmission timeout and the tail-loss probe timeout have different values, this is also not visualized in the sequence chart.
+
+- Section 5 could discuss more comprehensively what could be changed in "MPTCP-New". For instance, couldn't it make sense to use different heuristics depending on whether a loss is on the path with lowest RTT, or not?
+
+- If a retransmission scheme increases network load, this requires careful analysis. For instance, can it happen that the load on a congested path can increase? This should be discussed in more detail. In general, the analysis could be more comprehensive.
+
+- The final paper should be proof-read as there are some minor editorial issues.
+
+}
+\clearpage
+\textbf{Response}
+
+We plan to address the following points from the comments:\\
+
+1. Expand Section 5 to elaborate the contribution of the paper to enhance readability.\\
+2. RTO is used mainly to suggest that it is the standard (not Linux) TCP retransmission policy.\\
+3. Could it be that PTO is very close to RTO.   \\
+4. Due to the page limit constraints, it is not feasible to provide the figures for asymmetric delays. However the current figures could be updated to enhance the visualization. \\
+   Cli-I1 is Client Interface 1. It could be changed to Inf1-Client. There is no time scale in the figures to show the differences in RTO and PTO. \\
+5. Comprehensive study is not feasible within this page restrictions. We consider the suggestion for our future research.\\
+6. We try to enhance the readability by careful proof reading.\\
+
+
+
+
+
+\clearpage
+\section{Reviewer 3}
+\setcounter{reviewer} {3}
+
+\rsum{
+
+ *** Paper summary: Paper summary
+
+The paper investigates LTP for MCTCP. The authors investigate 3 scenarios for TCP, as baseline, and MPTCP both with and without TLP using emulations. Their results show a weakness of the existing TLP implementation for MPTCP in a scenario where the TLP is also lost on the link with higher delay. Further the authors propose a change to address this detected problem and show the improvements with their modification in the same scenarios.
+
+*** Strengths: What are the major reasons to accept the paper? [Be brief.]
+
+The experiment is well performed and the paper is well written. Further the authors propose an change in the implementation that demonstrates to improve the results.
+
+*** Weaknesses: What are the most important reasons NOT to accept the paper? [Be brief.]
+
+The paper investigates an existing implementation of TLP for MPTCP. While the results are interesting, the investigated scenarios are limited, catching a problem in a potentially rare case. The proposed improvement rather seems like fixing an incomplete implementation of TLP for MPTCP. While this proposed changed is a valuable contribution, it's not clear to me if this contribution is sufficient for a 6-page paper.
+
+}
+
+\rcomment{
+*** Detailed Comments: Please provide detailed comments that will be helpful to the TPC for assessing the paper. Also provide feedback to the authors.
+
+Thanks for the well-written paper. One minor comment: Maybe use different colors for figure 6 because I first assume that blue and green would match to some of the previous graphs. Also it is not really clearly described anywhere that all results in figure 6 are with the TLP version of TCP and MPTCP respectively.
+
+Tiny nit:
+s/Further evaluations in [5], showed/Further, evaluations in [5] showed/
+
+}
+\textbf{Response}
+We plan to address the following points from the comments:\\
+1. Figure 6 Colors will be updated as per suggestion. \\
+2. We update the text in Section 6 to elucidate that the results in Figure 6 are with the TLP enabled TCP and MPTCP respectively.\\
+3. Text updated.\\
+
+
+\clearpage
+\section{Reviewer 4} 
+\setcounter{reviewer} {4}
+\rsum{
+
+
+*** Paper summary: Paper summary
+
+The paper studies tail losses in TCP and Multipath TCP, and presents a modification to the existing algorithm to enable faster burst completion times.
+
+*** Strengths: What are the major reasons to accept the paper? [Be  brief.]
+
+Interesting and novel work that is timely as MPTCP is an emerging transport protocol. The evalution is quite nice.
+}
+
+\rcomment{
+*** Weaknesses: What are the most important reasons NOT to accept the  paper? [Be brief.]
+
+Overall the weakness are more in the line of clarifications and positioning:
+- How big an issue tail loss is in reality? Is it really a problem, what data is there to show it is a problem worth solving? In particular since you mentioned some downsides of TLP (are there others?).
+- Introduction doesn't mention results, btw.
+- You have two times asymmetric use cases, e.g., 20-30 and 30-20, but I didn't understand why? Why aren't those the same if the bit rates on the links are the sam (as per Table 1)? Or are the BDP different on the links?
+- Figure 2 is not really discussed, in particular why (b) shows that TLP is worse than RTP?
+- How does TLP work really? How does it know the transfer is ending and not in the middle? You don't really explan how TLP is triggered vs. normal retransmissions. Does TLP affect "normal" data transfers at all?
+
+*** Detailed Comments: Please provide detailed comments that will be helpful to the TPC for assessing the paper. Also provide feedback to the authors.
+
+Overall it is a nice paper that would benefit from several clarifications. The weaknesses above would be important to tackle.
+
+}
+
+\textbf{Response}
+
+
+We plan to address the following points from the comments:\\
+1. Introduction section update to include importance of tail loss, the problem and gist of results.\\
+2. Path asymmentry is important as the paper considers deterministic packet loss in primary path.\\
+3. Figure 2 is discussed in Section 4.1 and we update the text to clarify the question on figure 2 (b)\\
+4. We try to update the Section 2 to provide more clarity on the working details of TLP \\
+
+
+% Uncomment in case references are needed
+\bibliographystyle{apalike}
+\bibliography{responsereferences}
+
+
+\end{document}
