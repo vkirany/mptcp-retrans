@@ -30,9 +30,10 @@
 \begin{abstract}
 Packet losses are known to affect the performance of latency sensitive applications in the Internet such as media streaming and gaming. 
 Transport protocols recover from packet loss in order to provide reliable end-to-end communication and improve user experience. The efficiency of 
-loss recovery mechanisms influences the completion time of flows. In this paper we focus on state-of-the-art loss recovery mechanisms for TCP 
+loss recovery mechanisms influences the completion time of flows, and thus also the application performance as perceived by the
+end user. In this paper we focus on state-of-the-art loss recovery mechanisms for TCP 
 and Multipath TCP. We use controlled tail loss scenarios to evaluate the performance of loss recovery mechanisms, and based on the observations, 
-we propose an enhanced tail loss recovery mechanism for Multipath TCP, to improve the loss recovery time. Our experiment results using Linux 
+we propose an enhanced tail loss recovery mechanism for Multipath TCP, to improve the loss recovery time. Our experiment results using the Linux 
 Multipath TCP implementation show consistent end-to-end latency performance improvement in considered scenarios. 
 \end{abstract}
 
@@ -45,17 +46,19 @@ multiple TCP subflows using different interfaces on different routes. Each TCP s
 
 TCP has two mechanisms for detecting and recovering from packet losses: Fast Retransmit (FR) and Retransmission Timeout~(RTO)~\cite{Flach:2013}. 
 Fast retransmit is triggered on receipt of a predecided number of duplicate acknowledgements, considering it as an indication of loss. In the case 
-of RTO, a sender waits for the packet loss to trigger a timeout before retransmitting packet. During such a timeout, the sender cannot send any 
+of RTO, a sender waits for the packet loss to trigger a timeout before retransmitting the packet. During such a timeout interval, 
+the sender cannot retransmit any 
 packets. However, with FR the out-of-order packets trigger duplicate acknowledgements. The sender can start retransmission of missing packets 
-without waiting for timeout. For flows where there are sufficiently many packets to be transferred, FR is quicker than RTO in detecting and 
-recovering packet loss. Fast retransmit coupled with fast recovery can send data outstanding when there is enough data to send in long flows. 
-On the other hand, shorter flows more frequently depend on RTO for packet loss detection and recovery, thus incurring more latency. A single 
+without waiting for a timeout. For flows where there are sufficiently many packets to be transferred, FR is quicker than RTO in detecting and 
+recovering packet loss. During long flows, subsequent packets in the flow typically arrive at the receiver after a packet loss and based
+on the duplicate acknowledgements that they trigger, FR coupled with fast recovery can quickly retransmit the missing data. 
+On the other hand, shorter flows more frequently have to depend on RTO for packet loss detection and recovery, thus incurring more latency. A single 
 packet loss in a short flow may take many RTTs to detect and recover. This scenario is also applicable to the packets at the end of the flow 
 (or tail), of a long flow. Although RTO is reliable even in tail loss recovery, it is not efficient in terms of recovery completion time. Tail 
 losses are one of the major causes of end-to-end latency detoriation in modern networks~\cite{Flach:2013}. 
 
 
-TCP Loss Probe (TLP)~\cite{Flach:2013} is a mechanism to detect and recover from tail losses by employing a loss probe packet for a timeout shorter
+TCP Loss Probe (TLP)~\cite{Flach:2013} is a mechanism to detect and recover from tail losses by employing a loss probe packet sent after a timeout shorter
 than the RTO. Probe timeout enables short flows to recover packet loss at the tail, by triggering FR. It assumes that other algorithms such as 
 Early Retransmit~(ER)\cite{rfc5827} and Forward Acknowledgement~(FACK)~\cite{FACK} threshold based recovery are enabled. TLP is available in the Linux 
 kernel and enabled by default. Further, evaluations in~\cite{Rajiullah:2015} show that TLP provides significant latency reductions for short 
@@ -63,12 +66,12 @@ flows with one to n-degree tail losses.
 
  MPTCP connections start with one TCP flow to send data over, and may add more flows to the connection if configured to. MPTCP uses a connection 
  level congestion window as well as subflow level congestion windows for each subflow. Data is split across the flows and each data packet is 
- scheduled on one of the subflows based on the minimum RTT. Packet losses in each subflow are detected and recovered in a similar fashion as that of 
+ scheduled on one of the subflows. The default MPTCP scheduler in Linux selects the subflow to use based on the shortest RTT. Packet losses in each subflow are detected and recovered in a similar fashion as that of 
  TCP. Loss recovery can be conducted at different levels: the MPTCP connection level (meta level) and at subflow level. If the recovery is handled 
  at meta level, a lost packet may be rescheduled and retransmitted on the available subflow with the lowest RTT. If recovery is handled at the 
- subflow level, the packet must be retransmitted on the same subflow. An important part of loss recovery process at the subflow level is to follow 
- the TCP semantics and retransmit lost packets on the initial path of transfer. However, the MPTCP standard~\cite{rfc6824} does not specify exactly, 
- how the loss recovery should happen in the implementation and which subflow should retransmit the lost packets.
+ subflow level, the packet is retransmitted on the same subflow. An important part of the loss recovery process at the subflow level is to follow 
+ the TCP semantics and retransmit lost packets on the initial path of transfer. However, the MPTCP standard~\cite{rfc6824} does not specify exactly 
+ how the loss recovery should happen in the implementation and which subflow(s) should retransmit the lost packets.
 
 
 In this paper, we analyze the retransmission behavior of MPTCP in selected tail loss cases to identify the scope for improvement. We propose a 
@@ -76,15 +79,15 @@ change in the retransmission strategy of MPTCP to improve the latency performanc
 Section~\ref{relwork}, and describe the experimental setup in Section~\ref{exsetup}. We discuss observations from the experiments on state 
 of the art retransmission behavior of TCP and MPTCP in Section~\ref{disc}. Based on the observations, we propose an improvement to the current 
 Linux implementation of TLP for MPTCP in Section~\ref{impr}. In Section~\ref{eval}, we provide an evaluation of the proposed TLP for MPTCP 
-mechanism and conclude the paper in Section~\ref{conc}. Our experimental results indicate improvement in the performance of TLP by reducing 
-recovery time in the event of tail losses.
+mechanism. Our experimental results indicate a consistent improvement in the performance of TLP by reducing 
+recovery time in the event of tail losses. Finally, we conclude the paper in Section~\ref{conc}. 
  
 %\kern-1em
 \section{Background and Related Work}\label{relwork}
 
 Retransmission schemes are of significant importance in achieving a low flow completion time. Several IETF RFCs such as SACK based 
 recovery~\cite{rfc6675}, Limited Transmit~\cite{rfc3042} and Early Retransmission~\cite{rfc5827} have led to improved retransmission 
-strategies for TCP. TLP is part of the various deployable loss recovery mechanisms proposed in~\cite{Flach:2013}, suggesting that current 
+strategies for TCP. TLP is part of the various deployable loss recovery mechanisms proposed in~\cite{Flach:2013}, suggesting that the evaluated 
 Linux TCP implementation provides room for improvement in several packet loss scenarios. 
 
 In a TCP flow, sequence numbers are used to identify lost packets and retransmit them. MPTCP uses two levels of sequence numbers to support 
@@ -93,13 +96,15 @@ numbers are for individual flow data sequence. There is an association between d
 A loss occurring in an individual TCP flow corresponds to a loss in end-to-end data. Multipath TCP, as an extension of TCP, uses the 
 TCP retransmission mechanism. However, the interaction between the two levels makes the problem of retransmitting more challenging than in TCP. The dual sequence 
 numbering enables MPTCP to respond to loss of packets by retransmitting the lost packets on an alternate path.  
+The Linux implementation of MPTCP uses a set of retransmission heuristics to handle retransmissions. In addition to the normal TCP retransmission 
+on the subflow level, the data outstanding on a timed out subflow 
+is rescheduled for transmission on a different subflow using timeout as the indicator. Fast retransmit on a subflow does not trigger 
+retransmission on another subflow. 
 
-The Linux implementation of MPTCP uses a set of retransmission heuristics to handle retransmissions. The data outstanding on a timed out subflow 
-should be rescheduled for transmission on a different subflow using timeout as the indicator. Fast retransmit on a subflow will not trigger 
-retransmission on another subflow. The target devices of MPTCP contain a degree of asymmetry in their interface characteristics such as 3G or 
+The target devices of MPTCP contain a degree of asymmetry in their interface characteristics such as 3G or 
 4G vs WLAN, leading to flows with different delay characteristics. Significant delay differences in available paths can cause receive buffer 
 limitations, as the receiver has to wait for the data sent on a slow path, while buffering the data on the fast path. In such cases, opportunistic 
-retransmission~\cite{Costin} improves the latency by using fast path to retransmit the data sent on an another path. Authors in~\cite{fuso}, try 
+retransmission~\cite{Costin} improves the latency by using the fast path to retransmit the data sent on an another path. Authors in~\cite{fuso}, try 
 to exploit the path diversity by quickly retransmitting on the fastest paths. Such quick retransmission comes with a cost of redundant packets as 
 each individual TCP flow should retransmit always as well to follow TCP semantics. The MPTCP standard~\cite{rfc6824} suggests a more conservative 
 approach. MPTCP is designed to exploit the multiple interfaces and often one or more of these could be wireless with completely different 
@@ -123,7 +128,7 @@ retransmission for implementation flexibility and availability of TLP support.
 \end{center}
 \end{figure}
 
-Experiments are run in the CORE emulation platform~\cite{CORE} with a simple topology as depicted in Figure~\ref{fig1}. The client node connect to two wireless interfaces 3G or 4G and WLAN and the server node connect to a wired router.
+Experiments are run in the CORE emulation platform~\cite{CORE} with a simple topology as depicted in Figure~\ref{fig1}. The client node connects to two wireless interfaces 3G or 4G and WLAN and the server node connects to a wired router.
 CORE uses the Linux networking stack in each node of the topology by using a lightweight virtualization technique known as Linux network namespaces.
 Characteristics of the connection setup and assumptions about the parameters are provided in Table~\ref{tab1}.
 There is no attempt in this study to focus on the effect of link specific characteristics in retransmission performance.
@@ -182,8 +187,8 @@ deterministic drop pattern. Losses are generated by associating netem with corre
 is simplified by using the KAUNetem tool~\cite{Garcia2016}, which allows an experimenter to e.g., drop packets based on their positions in a flow. 
 A MPTCP connection starts with a single TCP subflow and subsequently, one or more subflows are added following an agreement between the client 
 and the server. So one has to wait both in time and packets for the second subflow establishment. We send two bursts of 80 packets each and drop 
-tail packets in the second burst at one of the interfaces. This is to ensure that the necessary and sufficient conditions for probe triggering 
-are met and tail loss probe is generated on that subflow. We calculate the burst completion time for the second burst that has specified tail 
+packets at the tail of the second burst at one of the interfaces. This is to ensure that the necessary and sufficient conditions for probe triggering 
+are met and a tail loss probe is generated on that subflow. We calculate the burst completion time for the second burst that has specified tail 
 losses. The objective of this experiment is to evaluate retransmission mechanisms with tail loss (single packet loss and multiple tail loss) and 
 temporary path loss. Three test cases are considered for the experiments: single packet tail loss and two packet tail loss for tail loss evaluation 
 and single packet along with probe~(in TLP) or retransmission~(in RTO) loss for path loss evaluation. 
@@ -193,8 +198,8 @@ ER and TLP, which may not be the case with other operating systems. In this pape
 the use of retransmission timeout only.
 
 
-The setup has server and client with Linux supporting MPTCP running on them. The Client has two interfaces with one way delay on each interface 
-ranging from 20\,ms to 120\,ms. The intention is to evaluate the effect of symmetry, mild asymmetry and higher asymmetry in the link delays. We 
+The setup has a server and a client with Linux supporting MPTCP running on them. The Client has two interfaces with one way delay on each interface 
+ranging from 20\,ms to 120\,ms. The intention is to evaluate the effect of symmetry, mild asymmetry and high asymmetry in the link delays. We 
 consider 5 scenarios with delay pairings 20\,ms-20\,ms, 20\,ms-30\,ms, 20\,ms-120\,ms, 30\,ms-20\,ms, 120\,ms-20\,ms to understand the effect of
 delay difference in the performance as shown in Table~\ref{tab1}.
 
