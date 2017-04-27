@@ -303,14 +303,12 @@ FACK/early-retransmit based fast recovery, thus avoiding a costly retransmission
 MPTCP helps improving the latency performance in cases when the paths are symmetric or the first path~(for the packet) has lowest RTT. However, 
 it reduces the performance in cases when the first path is not the lowest RTT path or when there is longer path interruption.
 
-The current implementation of TLP is at the TCP flow level. In the event of RTO timeout, the MPTCP retransmission happens with a re-injection in 
-to the scheduler along with sending the lost packet on the same path. But in the event of Probe timeout, the loss probe packet is being sent on 
-the same path without being re-injected in to the scheduler. We propose a modification to the probe sending mechanism for MPTCP by re-injecting 
-the probe packet in to the MPTCP scheduler in the event of PTO. As the probe timeout is meant for acting faster than the RTO timeout with 
-essentially the same consequence as a retransmission, it is relevant to follow the same process as upon an RTO. It is expected that this 
-modification is useful when the alternate path has lower delay than the packet original transmission path or when there is longer path 
-interruption. The timing diagram depicted in Figure~\ref{timingNew} indicates the eventual behavior of modified MPTCP TLP for each of the studied 
-loss scenarios.
+\begin{figure*}
+\begin{center}
+    \includegraphics[angle=0, width=0.8\textwidth]{images/timingER3NewTLP1}
+\end{center}
+\caption{Timing diagram of MPTCP behavior with proposed improvements with loss of a) Single packet b) Two packets c) Single packet and probe loss}\label{timingNew}
+\end{figure*}
 
 \begin{figure*}
 \begin{subfigure}[b]{0.32\textwidth}
@@ -330,14 +328,27 @@ loss scenarios.
 \caption{Performance comparison of MPTCP-New with MPTCP and TCP}\label{mpnew}
 \end{figure*}
 
+The current implementation of TLP is at the TCP flow level. In the event of RTO timeout, the MPTCP retransmission happens with a re-injection in 
+to the scheduler along with sending the lost packet on the same path. But in the event of Probe timeout, the loss probe packet is being sent on 
+the same path without being re-injected in to the scheduler. We propose a modification to the probe sending mechanism for MPTCP by re-injecting 
+the probe packet in to the MPTCP scheduler in the event of PTO. As the probe timeout is meant for acting faster than the RTO timeout with 
+essentially the same consequence as a retransmission, it is relevant to follow the same process as upon an RTO. It is expected that this 
+modification is useful when the alternate path has lower delay than the packet original transmission path or when there is longer path 
+interruption. The timing diagram depicted in Figure~\ref{timingNew} indicates the eventual behavior of modified MPTCP TLP for each of the studied 
+loss scenarios.
 
 
+
+
+<<<<<<< HEAD
 \begin{figure*}[!ht]
 \begin{center}
 \includegraphics[angle=0, width=\textwidth]{images/timingER3NewTLP1.pdf}
 \end{center}
 \caption{Timing diagram of MPTCP behavior with proposed improvements with loss of a) Single packet b) Two packets c) Single packet and probe loss}\label{timingNew}
 \end{figure*}
+=======
+>>>>>>> 995f6933bb9382c0c0296a0c955f17863595b3a1
 
 %\kern-1em
 \section{Evaluation of modified MPTCP TLP}\label{eval}
@@ -352,7 +363,7 @@ performs better than both MPTCP and TCP in all scenarios with PTO triggering the
 
 
 %\kern-1em
-\section{Conclusion}\label{conc}
+\section{Conclusions}\label{conc}
 This paper provides a short comparative analysis of retransmission behavior with TCP and MPTCP protocols using various loss patterns for tail loss.
 The three cases of tail loss together with deterministic loss patterns allow us to dissect the retransmission behavior at packet level to 
 understand possible improvements.
