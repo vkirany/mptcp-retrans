@@ -334,7 +334,11 @@ the probe packet in to the MPTCP scheduler in the event of PTO. As the probe tim
 essentially the same consequence as a retransmission, it is relevant to follow the same process as upon an RTO. It is expected that this 
 modification is useful when the alternate path has lower delay than the packet original transmission path or when there is longer path 
 interruption. The timing diagram depicted in Figure~\ref{timingNew} indicates the eventual behavior of modified MPTCP TLP for each of the studied 
-loss scenarios. For asymmetric scenarios, the behavior changes with respect to scheduler perceived delay differences are assumed.
+loss scenarios. In the case of single packet tail loss, lost packet is retransmitted on the alternate path at the same time as probe sent on primary
+path. Since probe is the last transmitted packet, that is same as the retransmitted first outstanding packet in single packet tail loss. When two tail packets are lost,
+probe sent on the primary is the last transmitted packet and first outstanding packet is retransmitted on the alternate path. This difference in packet
+sequence numbers is expected on the two paths due to the nature of recovery mechanism used in each path. In the case of packet and probe loss in the 
+primary path, the alternate path retransmission is same as the probe packet.
 
 %\kern-1em
 \section{Evaluation of modified MPTCP TLP}\label{eval}
