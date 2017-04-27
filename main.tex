@@ -372,15 +372,15 @@ performs better than MPTCP in asymmetric scenarios with a lower delay on the alt
 %\kern-1em
 \section{Conclusions}\label{conc}
 This paper provides a short comparative analysis of retransmission behavior with TCP and MPTCP protocols using various loss patterns for tail loss.
-The three cases of tail loss together with deterministic loss patterns allow us to dissect the retransmission behavior at packet level to 
+The three studied cases of tail loss together with deterministic loss patterns allow us to dissect the retransmission behavior at packet level to 
 understand possible improvements.
-We propose a less conservative approach to trigger retransmission on an alternate path in the event of tail loss probe timeout, which otherwise 
-triggered with an RTO. Our emulation experiments  using a modified Linux implementation, show that the proposed approach in fact improves the 
+We propose a less conservative approach to trigger retransmission on an alternate path in the event of tail loss probe timeout, which is otherwise 
+triggered only with an RTO. Our emulation experiments  using a modified Linux implementation, show that the proposed approach in fact improves the 
 burst completion time in most cases and equals the existing implementation in other cases. The proposed approach improves the performance when 
 the alternate path has lower delay than the original loss path and the advantage increases with degree of asymmetry between the paths. 
 Temporary path failures can cause probe loss along with packet loss. The approach is very effective in case of probe loss which otherwise 
-incur RTO timeout to trigger retransmission on either path. However, the latency improvement comes at a cost of additional network traffic 
-from the retransmitted packets. This study is limited to emulated synthetic traffic and static drop pattern that serve the purpose of localizing 
+incur RTO timeout to trigger retransmission on either path. The latency improvement comes at a cost of additional network traffic 
+from the retransmitted packets. However, this additional traffic is small and subject to normal congestion control. This study is limited to emulated synthetic traffic and static drop patterns that serve the purpose of localizing 
 the loss events. A comprehensive study covering various traffic types and loss patterns is considered for future investigation. Further, we plan 
 to investigate less conservative approaches for other retransmission events.
 
