@@ -39,7 +39,7 @@ Multipath TCP implementation show consistent end to end latency performance impr
 \section{Introduction}
 
 
-Multipath TCP~(MPTCP)~\cite{rfc6824} is an experimental standard proposed as an extension to TCP. MPTCP allows devices with multiple interfaces to 
+Multipath TCP~(MPTCP)~\cite{rfc6824} is an experimental standard proposed as an extension to TCP~\cite{rfc793}. MPTCP allows devices with multiple interfaces to 
 transmit data simultaneously on both interfaces, thereby improving the throughput of end-to-end connections. Using MPTCP, a connection can have 
 multiple TCP subflows using different interfaces on different routes. Each TCP subflow imparts the functional behavior of a standard TCP flow. 
 
@@ -292,16 +292,15 @@ paths. Even if the retransmission fails on one path, the client receives the pac
 in the current implementation, the loss probe is sent on the actual path of the first transmission but not on both paths. This incomplete impartation 
 of TLP from TCP to MPTCP led to the increase in burst completion time by an RTO for MPTCP. 
 
-
-
 %\kern-1em
 \section{Improvements to TLP for MPTCP}\label{impr}
 The goal of Tail Loss Probe~(TLP) is to reduce tail latency of short flows. It achieves this by converting retransmission timeouts (RTOs) occurring
-due to tail losses into fast recovery. TLP transmits one packet in two round-trips when a connection is in Open state and is not receiving any ACKs.
-The transmitted packet, or loss probe, can be either new or a retransmission. When there is tail loss, the ACK from a loss probe triggers 
-FACK/early-retransmit based fast recovery, thus avoiding a costly retransmission timeout. Our results show that the current TLP implementation for 
-MPTCP helps improving the latency performance in cases when the paths are symmetric or the first path~(for the packet) has lowest RTT. However, 
-it reduces the performance in cases when the first path is not the lowest RTT path or when there is longer path interruption.
+due to tail losses into fast recovery. In Open state of TCP connection, a sender is receiving in-sequence ACKs and has not detected any lost segments.
+TLP transmits one packet in two round-trips when a connection is in Open state and is not receiving any ACKs. The transmitted packet, or loss probe, 
+can be either new or a retransmission. When there is tail loss, the ACK from a loss probe triggers FACK/early-retransmit based fast recovery, thus 
+avoiding a costly retransmission timeout. Our results show that the current TLP implementation for MPTCP helps improving the latency performance in 
+cases when the paths are symmetric or the first path~(for the packet) has lowest RTT. However, it reduces the performance in cases when the first path 
+is not the lowest RTT path or when there is longer path interruption.
 
 \begin{figure*}
 \begin{center}
@@ -335,20 +334,7 @@ the probe packet in to the MPTCP scheduler in the event of PTO. As the probe tim
 essentially the same consequence as a retransmission, it is relevant to follow the same process as upon an RTO. It is expected that this 
 modification is useful when the alternate path has lower delay than the packet original transmission path or when there is longer path 
 interruption. The timing diagram depicted in Figure~\ref{timingNew} indicates the eventual behavior of modified MPTCP TLP for each of the studied 
-loss scenarios.
-
-
-
-
-<<<<<<< HEAD
-\begin{figure*}[!ht]
-\begin{center}
-\includegraphics[angle=0, width=\textwidth]{images/timingER3NewTLP1.pdf}
-\end{center}
-\caption{Timing diagram of MPTCP behavior with proposed improvements with loss of a) Single packet b) Two packets c) Single packet and probe loss}\label{timingNew}
-\end{figure*}
-=======
->>>>>>> 995f6933bb9382c0c0296a0c955f17863595b3a1
+loss scenarios. For asymmetric scenarios, the behavior changes with respect to scheduler perceived delay differences are assumed.
 
 %\kern-1em
 \section{Evaluation of modified MPTCP TLP}\label{eval}
@@ -356,10 +342,12 @@ loss scenarios.
 Results comparing the burst completion time for new MPTCP TLP with that of TCP and MPTCP TLP for the considered cases are provided in 
 Figure~\ref{mpnew}. In Figure~\ref{1pn}, MPTCP-New performs better than TCP in all scenarios, performs equal to MPTCP in symmetric scenarios and 
 performs better than MPTCP in asymmetric scenarios with a lower delay on the alternate path. MPTCP-New achieves this improvement by retransmitting
- lost packets on the alternate path much before the RTO. In two packet tail loss scenario as in Figure~\ref{2pn}, MPTCP-New
-performs better than TCP in all scenarios and better than MPTCP in all scenarios except when the alternate path has a significantly higher delay 
-than the original path, where performance is the same. In the single packet together with probe loss scenario as in Figure~\ref{1ppn}, MPTCP-New 
-performs better than both MPTCP and TCP in all scenarios with PTO triggering the probe retransmission on alternate path much earlier than the RTO.
+ lost packet on the alternate path much before the RTO. It is also observed that there is no performance degradation when the alternate path has 
+ higher delay as the probe packet (same as the lost packet when there is only one outstanding packet in this case) on the primary path reaches 
+ completing the loss recovery. In two packet tail loss scenario as in Figure~\ref{2pn}, MPTCP-New performs better than TCP in all scenarios and better 
+ than MPTCP in all scenarios except when the alternate path has a significantly higher delay than the original path, where performance is the same. 
+ In the single packet together with probe loss scenario as in Figure~\ref{1ppn}, MPTCP-New performs better than both MPTCP and TCP in all scenarios 
+ with PTO triggering the probe retransmission on alternate path much earlier than the RTO. 
 
 
 %\kern-1em
