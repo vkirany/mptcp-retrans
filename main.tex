@@ -344,8 +344,8 @@ loss scenarios.
 
 Results comparing the burst completion time for new MPTCP TLP with that of TCP and MPTCP TLP for the considered cases are provided in 
 Figure~\ref{mpnew}. In Figure~\ref{1pn}, MPTCP-New performs better than TCP in all scenarios, performs equal to MPTCP in symmetric scenarios and 
-performs better than MPTCP in asymmetric scenarios with a lower delay on the alternate path. This improvement is for the reason that MPTCP-New 
-allows the packet to be retransmitted on the alternate path much before the RTO. In two packet tail loss scenario as in Figure~\ref{2pn}, MPTCP-New
+performs better than MPTCP in asymmetric scenarios with a lower delay on the alternate path. MPTCP-New achieves this improvement by retransmitting
+ lost packets on the alternate path much before the RTO. In two packet tail loss scenario as in Figure~\ref{2pn}, MPTCP-New
 performs better than TCP in all scenarios and better than MPTCP in all scenarios except when the alternate path has a significantly higher delay 
 than the original path, where performance is the same. In the single packet together with probe loss scenario as in Figure~\ref{1ppn}, MPTCP-New 
 performs better than both MPTCP and TCP in all scenarios with PTO triggering the probe retransmission on alternate path much earlier than the RTO.
