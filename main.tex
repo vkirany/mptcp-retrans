@@ -306,8 +306,8 @@ of TLP from TCP to MPTCP led to the increase in burst completion time by an RTO 
 %\kern-1em
 \section{Improvements to TLP for MPTCP}\label{impr}
 The goal of Tail Loss Probe~(TLP) is to reduce tail latency of short flows. It achieves this by converting retransmission timeouts (RTOs) occurring
-due to tail losses into fast recovery. In Open state of TCP connection, a sender is receiving in-sequence ACKs and has not detected any lost segments.
-TLP transmits one packet in two round-trips when a connection is in Open state and is not receiving any ACKs. The transmitted packet, or loss probe, 
+due to tail losses into fast recovery. The Open state of a TCP connection is whenever a sender receives in-sequence ACKs and has not detected any lost segments.
+If TCP does not receive any ACKs within two RTTs while in the Open state, TLP transmits one packet. The transmitted packet, or loss probe, 
 can be either new or a retransmission. When there is tail loss, the ACK from a loss probe triggers FACK/early-retransmit based fast recovery, thus 
 avoiding a costly retransmission timeout. Our results show that the current TLP implementation for MPTCP helps improving the latency performance in 
 cases when the paths are symmetric or the path where the packet is first transmitted has the lowest RTT. However, it reduces the performance in cases when the first path 
