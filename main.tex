@@ -358,12 +358,15 @@ original path, the alternate path retransmission is the same as the probe packet
 Results comparing the burst completion time for new MPTCP TLP with that of TCP and MPTCP TLP for the considered cases are provided in 
 Figure~\ref{mpnew}. In Figure~\ref{1pn}, MPTCP-New performs better than TCP in all scenarios, performs equal to MPTCP in symmetric scenarios and 
 performs better than MPTCP in asymmetric scenarios with a lower delay on the alternate path. MPTCP-New achieves this improvement by retransmitting
- lost packet on the alternate path much before the RTO. It is also observed that there is no performance degradation when the alternate path has 
- higher delay. Probe packet on the primary path reaches faster than the retransmitted path and completes loss recovery at MPTCP level. In two packet 
+ the lost packet on the alternate path much before the RTO. It is also observed that there is no performance degradation when the alternate path has 
+ higher delay. The probe packet on the original path reaches faster than the retransmitted packet on the alternate path and completes loss recovery at the MPTCP level. In two packet 
  tail loss scenario as in Figure~\ref{2pn}, MPTCP-New performs better than TCP in all scenarios and better than MPTCP in all scenarios except when 
- the alternate path has a significantly higher delay than the original path, where performance is the same. In the single packet together with probe 
- loss scenario as in Figure~\ref{1ppn}, MPTCP-New performs better than both MPTCP and TCP in all scenarios with PTO triggering the probe retransmission
- on alternate path much earlier than the RTO. 
+ the alternate path has a significantly higher delay than the original path, where performance is the same. For this scenario, MPTCP-New achieves
+ this gain as the retransmission on the alternate path recovers the first lost packet and the probe packet on the original path recovers the
+ second lost packet, and thus both lost packets can be recovered in parallel. 
+ In the single packet together with probe 
+ loss scenario as in Figure~\ref{1ppn}, MPTCP-New performs better than both MPTCP and TCP in all scenarios with PTO triggering the retransmission
+ on the alternate path much earlier than the RTO. 
 
 
 %\kern-1em
