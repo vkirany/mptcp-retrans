@@ -33,7 +33,7 @@ Transport protocols recover from packet loss in order to provide reliable end-to
 loss recovery mechanisms influences the completion time of flows. In this paper we focus on state-of-the-art loss recovery mechanisms for TCP 
 and Multipath TCP. We use controlled tail loss scenarios to evaluate the performance of loss recovery mechanisms, and based on the observations, 
 we propose an enhanced tail loss recovery mechanism for Multipath TCP, to improve the loss recovery time. Our experiment results using Linux 
-Multipath TCP implementation show consistent end to end latency performance improvement in considered scenarios. 
+Multipath TCP implementation show consistent end-to-end latency performance improvement in considered scenarios. 
 \end{abstract}
 
 \section{Introduction}
@@ -347,11 +347,11 @@ Results comparing the burst completion time for new MPTCP TLP with that of TCP a
 Figure~\ref{mpnew}. In Figure~\ref{1pn}, MPTCP-New performs better than TCP in all scenarios, performs equal to MPTCP in symmetric scenarios and 
 performs better than MPTCP in asymmetric scenarios with a lower delay on the alternate path. MPTCP-New achieves this improvement by retransmitting
  lost packet on the alternate path much before the RTO. It is also observed that there is no performance degradation when the alternate path has 
- higher delay as the probe packet (same as the lost packet when there is only one outstanding packet in this case) on the primary path reaches 
- completing the loss recovery. In two packet tail loss scenario as in Figure~\ref{2pn}, MPTCP-New performs better than TCP in all scenarios and better 
- than MPTCP in all scenarios except when the alternate path has a significantly higher delay than the original path, where performance is the same. 
- In the single packet together with probe loss scenario as in Figure~\ref{1ppn}, MPTCP-New performs better than both MPTCP and TCP in all scenarios 
- with PTO triggering the probe retransmission on alternate path much earlier than the RTO. 
+ higher delay. Probe packet on the primary path reaches faster than the retransmitted path and completes loss recovery at MPTCP level. In two packet 
+ tail loss scenario as in Figure~\ref{2pn}, MPTCP-New performs better than TCP in all scenarios and better than MPTCP in all scenarios except when 
+ the alternate path has a significantly higher delay than the original path, where performance is the same. In the single packet together with probe 
+ loss scenario as in Figure~\ref{1ppn}, MPTCP-New performs better than both MPTCP and TCP in all scenarios with PTO triggering the probe retransmission
+ on alternate path much earlier than the RTO. 
 
 
 %\kern-1em
