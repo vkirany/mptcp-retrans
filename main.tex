@@ -4,6 +4,7 @@
 \usepackage[nocompress]{cite}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{balance}
 
 %\newcommand{\per}[1]{}
 %\newcommand{\anna}[1]{}
@@ -227,8 +228,8 @@ using ER which incurs additional delay. In RTO retransmission, the second packet
 for the RTO retransmission is received. 
 
 If the probe or retransmission is lost, as shown 
-in Figure~\ref{tcpf}, then TLP performs better than RTO retransmission as it waits for one 
-probe timeout and one RTO experiation instead of two RTO expirations, thus avoiding the exponential backoff of the RTO.
+in Figure~\ref{t1pp}, then TLP performs better than RTO retransmission as it waits for one 
+probe timeout and one RTO expiration instead of two RTO expirations, thus avoiding the exponential backoff of the RTO.
 
 %\kern-1em
 \subsection{MPTCP}
@@ -382,7 +383,7 @@ to investigate less conservative approaches for other retransmission events.
 \section*{Acknowledgment}
 This work was in part funded by The Knowledge Foundation (KKS) through the SIDUS READY project. The views expressed are solely those of the 
 author(s).
-   
+
 %\kern-1em
 \bibliographystyle{IEEEtran}
 \bibliography{mptcp-retrans}
