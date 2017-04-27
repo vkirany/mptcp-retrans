@@ -292,7 +292,7 @@ as probe to trigger fast retransmit of the packets in between. In order to obser
 last two packets. The results of two packet tail loss are shown in Figure~\ref{2p}. In this case, TLP performs better than the RTO 
 setting in all scenarios except when packets are lost on a high delay interface. In this scenario, the MPTCP retransmission follows the 
 behavior depicted in Figure~\ref{timing2P} and the delay difference is large enough that the retransmission of the last packet on the alternate 
-path is faster than the probe on the primary path. 
+path is faster than the probe on the original path. 
 
 
 To further study the performance of TLP in the case when there is a longer path interruption on one path, we tried to drop the probe packet along 
