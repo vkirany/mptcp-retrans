@@ -209,20 +209,25 @@ This section provides the performance analysis of TCP and MPTCP for the consider
 retransmission or probe loss.
 \subsection{TCP}
 Retransmission behavior of TCP provides a base case for MPTCP performance as each individual MPTCP subflow is a TCP flow in itself. Our analysis
-starts with the results using TCP and compares it with that of MPTCP. Figure~\ref{tcpf} represents the comparison of TCP burst completion times. Path
+starts with the results using TCP and compares it with that of MPTCP. Figure~\ref{tcpf} represents the comparison of TCP burst completion times
+in the considered scenarios. Path
 asymmetry is irrelevant in this case as TCP uses a single path.
 
 In the case of single packet tail loss, as shown in Figure~\ref{t1p}, there is no difference in burst completion between RTO and TLP. The 
 retransmission timeout and the probe timeout are the same as there is only one outstanding packet. This is a special case in the TLP
 specification that adds 200\,ms to the PTO accommodating the case of delayed ACKs. The TLP implementation in Linux accounts for the delayed 
-ACK and waits 200\,ms before sending a probe. The minimum of PTO and RTO is considered for PTO. In the case of two packet tail loss, as shown 
-in Figure~\ref{t2p}, TLP performs better than the RTO retransmission for lower delay values. As the delay on the loss path increases RTO retransmission performs 
-slightly better than TLP. In 120\,ms case, PTO is very close to RTO expiration and the second packet is recovered using ER which incurs additional 
-delay in case of TLP. In RTO retransmission, all unacknowledged packets are retransmitted on a RTO expiration. 
+ACK and waits 200\,ms before sending a probe. The minimum of PTO and RTO is considered for the PTO. Hence in this special case the value of 
+the retransmission timeout is used in the loss recovery in both RTO and TLP. This can be avoided by tuning the ACKs as discussed 
+in~\cite{Rajiullah:2015}.
 
-Hence retransmission timeout is the mode of loss recovery in both RTO and TLP. This can be avoided by tuning the ACKs as discussed 
-in~\cite{Rajiullah:2015}. In the case of two packet tail loss, TLP performs better than RTO retransmission as it employs a combination of TLP 
-and ER to recover from losses. If the probe or retransmission is lost, then TLP still performs better than RTO retransmission as it waits for one 
+In the case of two packet tail loss, as shown 
+in Figure~\ref{t2p}, TLP performs better than the RTO retransmission for lower delay values. As the delay on the loss path increases, RTO retransmission performs 
+slightly better than TLP. In the 120\,ms case, PTO is very close to RTO expiration and in the case of TLP the second packet is recovered 
+using ER which incurs additional delay. In RTO retransmission, the second packet is retransmitted immediately when the acknowledgement
+for the RTO retransmission is received. 
+
+If the probe or retransmission is lost, as shown 
+in Figure~\ref{tcpf}, then TLP performs better than RTO retransmission as it waits for one 
 probe timeout and one RTO experiation instead of two RTO expirations, thus avoiding the exponential backoff of the RTO.
 
 %\kern-1em
@@ -255,7 +260,7 @@ in Figure~\ref{mptiming}. The actual pattern might be different in cases where t
 MPTCP uses an RTT based scheduler by default, that uses the lowest RTT path among the available paths to transmit the data until its congestion 
 window is full. Subsequently, the next lowest RTT path is chosen. MPTCP performance is sensitive to asymmetry in paths. The burst completion times 
 on single packet tail loss calculated for each delay configuration and retransmission setting is depicted in Figure~\ref{1p}. There is no 
-difference in performance between RTO retransmission and TLP for cases when both paths are symmetric or the first path has lowest RTT. RTO performs 
+difference in performance between RTO retransmission and TLP for cases when both paths are symmetric or the first path has the lowest RTT. RTO performs 
 better than TLP when the first path is not the lowest RTT path. In such scenarios~(30\,ms-20\,ms,120\,ms-20\,ms), the RTO retransmission happens 
 in the second path with lowest RTT following the behavior depicted in Figure~\ref{timing1P}.
 
@@ -283,16 +288,16 @@ in the second path with lowest RTT following the behavior depicted in Figure~\re
 
 In the case of single packet tail loss, the last outstanding packet is sent as probe and in case of n-degree tail loss, the latest packet is sent 
 as probe to trigger fast retransmit of the packets in between. In order to observe the performance of n-degree tail loss, we consider dropping the 
-last two packets. The results of two packet tail loss are shown in Figure~\ref{2p}. In this case, TLP performs better than the other 
-two settings in all scenarios except when packets are lost on a high delay interface. In this scenario, the MPTCP retransmission follows the 
+last two packets. The results of two packet tail loss are shown in Figure~\ref{2p}. In this case, TLP performs better than the RTO 
+setting in all scenarios except when packets are lost on a high delay interface. In this scenario, the MPTCP retransmission follows the 
 behavior depicted in Figure~\ref{timing2P} and the delay difference is large enough that the retransmission of the last packet on the alternate 
 path is faster than the probe on the primary path. 
 
 
-To further study the performance of TLP in the case when there is longer path interruption on one path, we tried to drop the probe packet along 
+To further study the performance of TLP in the case when there is a longer path interruption on one path, we tried to drop the probe packet along 
 with the last packet. In this scenario, the RTO setting results in much lower burst completion times. Comparing with the performance of TLP in 
-TCP from Figure~\ref{t1pp}, where we saw that use of TLP improved the burst completion time, TLP in MPTCP did not improve the performance. The 
-reason lies in the way the retransmission and loss probe transmission is carried out in MPTCP. Retransmission occurs after an RTO time on both 
+TCP from Figure~\ref{t1pp}, where we saw that the use of TLP improved the burst completion time, TLP in MPTCP did not improve the performance. The 
+reason lies in the way the retransmission and loss probe transmission are carried out in MPTCP. After an RTO, retransmissions occur on both 
 paths. Even if the retransmission fails on one path, the client receives the packet on the other path as shown in Figure~\ref{timing1PP}. For TLP, 
 in the current implementation, the loss probe is sent on the actual path of the first transmission but not on both paths. This incomplete impartation 
 of TLP from TCP to MPTCP led to the increase in burst completion time by an RTO for MPTCP. 
