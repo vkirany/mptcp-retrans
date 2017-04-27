@@ -309,8 +309,8 @@ due to tail losses into fast recovery. In Open state of TCP connection, a sender
 TLP transmits one packet in two round-trips when a connection is in Open state and is not receiving any ACKs. The transmitted packet, or loss probe, 
 can be either new or a retransmission. When there is tail loss, the ACK from a loss probe triggers FACK/early-retransmit based fast recovery, thus 
 avoiding a costly retransmission timeout. Our results show that the current TLP implementation for MPTCP helps improving the latency performance in 
-cases when the paths are symmetric or the first path~(for the packet) has lowest RTT. However, it reduces the performance in cases when the first path 
-is not the lowest RTT path or when there is longer path interruption.
+cases when the paths are symmetric or the path where the packet is first transmitted has the lowest RTT. However, it reduces the performance in cases when the first path 
+is not the lowest RTT path or when there is longer path interruptions.
 
 \begin{figure*}
 \begin{center}
@@ -338,17 +338,18 @@ is not the lowest RTT path or when there is longer path interruption.
 \end{figure*}
 
 The current implementation of TLP is at the TCP flow level. In the event of RTO timeout, the MPTCP retransmission happens with a re-injection in 
-to the scheduler along with sending the lost packet on the same path. But in the event of Probe timeout, the loss probe packet is being sent on 
-the same path without being re-injected in to the scheduler. We propose a modification to the probe sending mechanism for MPTCP by re-injecting 
+to the scheduler along with sending the lost packet on the same path. But in the event of Probe timeout, the loss probe packet is being sent only on 
+the same path without being re-injected in to the MPTCP scheduler. We propose a modification to the probe sending mechanism for MPTCP by re-injecting 
 the probe packet in to the MPTCP scheduler in the event of PTO. As the probe timeout is meant for acting faster than the RTO timeout with 
 essentially the same consequence as a retransmission, it is relevant to follow the same process as upon an RTO. It is expected that this 
-modification is useful when the alternate path has lower delay than the packet original transmission path or when there is longer path 
+modification is useful when the alternate path has lower delay than the path where the packet was originally transmitted or when there is a longer path 
 interruption. The timing diagram depicted in Figure~\ref{timingNew} indicates the eventual behavior of modified MPTCP TLP for each of the studied 
-loss scenarios. In the case of single packet tail loss, lost packet is retransmitted on an alternate path at the same time as probe sent on primary
-path. Since probe is the last transmitted packet, that is same as the retransmitted first outstanding packet in single packet tail loss. When two tail packets are lost,
-probe sent on the primary is the last transmitted packet and first outstanding packet is retransmitted on the alternate path. This difference in packet
-sequence numbers is expected on the two paths due to the nature of recovery mechanism used in each path. In the case of packet and probe loss in the 
-primary path, the alternate path retransmission is same as the probe packet.
+loss scenarios. In the case of single packet tail loss, the lost packet is retransmitted on an alternate path at the same time as the probe 
+is sent on the original
+path. Since the probe is the last transmitted packet, that is the same as the retransmitted first outstanding packet for single packet tail loss. When two tail packets are lost, the
+probe sent on the original path is the last transmitted packet and the first outstanding packet is retransmitted on the alternate path. This difference in packet
+sequence numbers is expected on the two paths due to the nature of the recovery mechanism used on each path. In the case of packet and probe loss on the 
+original path, the alternate path retransmission is the same as the probe packet.
 
 %\kern-1em
 \section{Evaluation of modified MPTCP TLP}\label{eval}
