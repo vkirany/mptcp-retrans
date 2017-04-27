@@ -56,7 +56,7 @@ on the duplicate acknowledgements that they trigger, FR coupled with fast recove
 On the other hand, shorter flows more frequently have to depend on RTO for packet loss detection and recovery, thus incurring more latency. A single 
 packet loss in a short flow may take many RTTs to detect and recover. This scenario is also applicable to the packets at the end of the flow 
 (or tail), of a long flow. Although RTO is reliable even in tail loss recovery, it is not efficient in terms of recovery completion time. Tail 
-losses are one of the major causes of end-to-end latency detoriation in modern networks~\cite{Flach:2013}. 
+losses are one of the major causes of end-to-end latency deterioration in modern networks~\cite{Flach:2013}. 
 
 
 TCP Loss Probe (TLP)~\cite{Flach:2013} is a mechanism to detect and recover from tail losses by employing a loss probe packet sent after a timeout shorter
@@ -292,7 +292,7 @@ as probe to trigger fast retransmit of the packets in between. In order to obser
 last two packets. The results of two packet tail loss are shown in Figure~\ref{2p}. In this case, TLP performs better than the RTO 
 setting in all scenarios except when packets are lost on a high delay interface. In this scenario, the MPTCP retransmission follows the 
 behavior depicted in Figure~\ref{timing2P} and the delay difference is large enough that the retransmission of the last packet on the alternate 
-path is faster than the probe on the primary path. 
+path is faster than the probe on the original path. 
 
 
 To further study the performance of TLP in the case when there is a longer path interruption on one path, we tried to drop the probe packet along 
