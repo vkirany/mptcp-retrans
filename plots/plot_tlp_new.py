@@ -31,15 +31,15 @@ margin = 0.05
 bar_width = (1-2*margin)/3
 
 
-rects1 = plt.bar(index+margin, p1pe3 , bar_width,
+rects1 = plt.bar(index+margin, p2e3 , bar_width,
                  color='navy',
                  label='mptcp')
 
-rects2 = plt.bar(index+margin + bar_width, np1pe3 , bar_width,
-                 color='indigo',
+rects2 = plt.bar(index+margin + bar_width, np2e3 , bar_width,
+                 color='m',
                  label='mptcp-New')
 
-rects3 = plt.bar(index+margin + 2*bar_width, tp1pe3, bar_width,
+rects3 = plt.bar(index+margin + 2*bar_width, tp2e3, bar_width,
                  color='seagreen',
                  label='tcp')
 
