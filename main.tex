@@ -13,7 +13,9 @@
 \title{Probe or Wait: Handling tail losses using Multipath TCP}
 
 \author{\IEEEauthorblockN{Kiran~Yedugundla, Per~Hurtig, Anna~Brunstrom}
-\IEEEauthorblockA{Dept. of Computer Science, Karlstad University, Karlstad, Sweden}}
+\IEEEauthorblockA{Dept. of Computer Science, Karlstad University, Karlstad, Sweden\\
+    \{name.surname\}@kau.se
+}}
 
 \IEEEoverridecommandlockouts
 \IEEEpubid{%
@@ -60,6 +62,12 @@ This paper analyzes the performance of state of the art loss recovery mechanism 
 
 %\kern-1em
 \section{Experimental Setup}\label{exsetup}
+\begin{figure}
+\begin{center}
+\includegraphics[angle=0, width=0.45\textwidth]{images/fortest.pdf}
+\caption{Topology used for Emulation}\label{fig1}
+\end{center}
+\end{figure}
 
 Experiments use the CORE emulation platform~\cite{CORE} with a simple topology as depicted in Figure~\ref{fig1}. The client node connect to two wireless interfaces 3G or 4G and WLAN and the server node connect to a wired router.
 CORE uses the Linux networking stack in each node of the topology by using a lightweight virtualization technique known as Linux network namespaces.
@@ -67,15 +75,9 @@ Characteristics of the connection setup and assumptions about the parameters are
 %The parameters are chosen to be close to real values of bandwidth and delay of respective technologies.
 There is no attempt in this study to focus on the effect of link detailed characteristics in retransmission performance.
 
-\begin{figure}[!ht]
-\begin{center}
-\includegraphics[angle=0, width=0.45\textwidth]{images/fortest.pdf}
-\caption{Topology used for Emulation}\label{fig1}
-\end{center}
-\end{figure}
  
 \begin{center}
-\begin{table}
+    \begin{table}
 \resizebox{0.45\textwidth}{!}{\begin{minipage}{0.45\textwidth}
 \small
 \begin{center}
@@ -102,6 +104,23 @@ There is no attempt in this study to focus on the effect of link detailed charac
 \end{table}
 \end{center}
 
+\begin{figure*}
+ \begin{subfigure}{0.32\textwidth}
+	\includegraphics[angle=0, width=\textwidth,natwidth=578.16,natheight=433.62]{plots/T1P.pdf}
+	\caption{Single packet}\label{t1p}
+ \end{subfigure}
+ \hfill
+ \begin{subfigure}{0.32\textwidth}
+	\includegraphics[angle=0, width=\textwidth,natwidth=578.16,natheight=433.62]{plots/T2P.pdf}
+	\caption{Two packets }\label{t2p}
+ \end{subfigure}
+ \hfill
+ \begin{subfigure}{0.32\textwidth}
+	\includegraphics[angle=0, width=\textwidth, natwidth=578.16,natheight=433.62]{plots/T1PP.pdf}
+	\caption{Single packet and probe loss }\label{t1pp}
+ \end{subfigure}
+ \caption{Tail loss scenarios using TCP}\label{tcpf}
+\end{figure*}
 
 %\kern-1em
 \subsection{Testing retransmission with deterministic loss patterns}
@@ -110,7 +129,9 @@ In order to understand the retransmission behavior of the Linux MPTCP implementa
 In Linux, TCP supports multiple retransmission mechanisms that can be controlled by a system setting. The default setting in Linux enables both
 ER and TLP, which may not be the case with other operating systems. In this paper, we use TLP to denote the default Linux setting and RTO to denote the use of retransmission timeout only.
 
+
 The setup has server and client with Linux supporting MPTCP running on them. The Client has two interfaces with one way delay on each interface ranging from 20\,ms to 120\,ms. The intention is to evaluate the effect of symmetry, mild asymmetry and higher asymmetry in the link delays. We consider 5 scenarios with delay pairings 20\,ms-20\,ms, 20\,ms-30\,ms, 20\,ms-120\,ms, 30\,ms-20\,ms, 120\,ms-20\,ms to understand the effect of delay difference in the performance as shown in Table~\ref{tab1}.
+
 
 \section{Observations and Discussion}\label{disc}
 This section provides the performance analysis of TCP and MPTCP for the considered cases of single packet tail loss, two packet tail loss and retransmission or probe loss.
@@ -128,23 +149,6 @@ TLP performs better than the RTO retransmission for lower delay values. As the d
 Hence retransmission timeout is the mode of loss recovery in both RTO and TLP. This can be avoided by tuning
 the ACKs as discussed in~\cite{Rajiullah:2015}. In the case of two packet tail loss, TLP performs better than RTO retransmission as it employs a combination of TLP and ER to recover from losses. If the probe or retransmission is lost, then TLP still performs better than RTO retransmission as it waits for one probe timeout and one RTO experiation instead of two RTO expirations, thus avoiding the exponential backoff of the RTO.
 
-\begin{figure*}[!tbp]
- \begin{subfigure}[b]{0.32\textwidth}
-	\includegraphics[angle=0, width=\textwidth,natwidth=578.16,natheight=433.62]{plots/T1P.pdf}
-	\caption{Single packet}\label{t1p}
- \end{subfigure}
- \hfill
- \begin{subfigure}[b]{0.32\textwidth}
-	\includegraphics[angle=0, width=\textwidth,natwidth=578.16,natheight=433.62]{plots/T2P.pdf}
-	\caption{Two packets }\label{t2p}
- \end{subfigure}
- \hfill
- \begin{subfigure}[b]{0.32\textwidth}
-	\includegraphics[angle=0, width=\textwidth, natwidth=578.16,natheight=433.62]{plots/T1PP.pdf}
-	\caption{Single packet and probe loss }\label{t1pp}
- \end{subfigure}
- \caption{Tail loss scenarios using TCP}\label{tcpf}
-\end{figure*}
 %\kern-1em
 \subsection{MPTCP}
 
@@ -273,18 +277,7 @@ The goal of Tail Loss Probe~(TLP) is to reduce tail latency of short flows. It a
 
 The current implementation of TLP is at the TCP flow level. In the event of RTO timeout, the MPTCP retransmission happens with a re-injection in to the scheduler along with sending the lost packet on the same path. But in the event of Probe timeout, the loss probe packet is being sent on the same path without being re-injected in to the scheduler. We propose a modification to the probe sending mechanism for MPTCP by re-injecting the probe packet in to the MPTCP scheduler in the event of PTO. As the probe timeout is meant for acting faster than the RTO timeout with essentially the same consequence as a retransmission, it is relevant to follow the same process as upon an RTO. It is expected that this modification is useful when the alternate path has lower delay than the packet original transmission path or when there is longer path interruption. The timing diagram depicted in Figure~\ref{timingNew} indicates the eventual behavior of modified MPTCP TLP for each of the studied loss scenarios.
 
-\begin{figure}[!ht]
-\begin{center}
-\includegraphics[angle=0, width=0.46\textwidth]{images/timingER3NewTLP1.pdf}
-\end{center}
-\caption{Timing diagram of MPTCP behavior with proposed improvements with loss of a) Single packet b) Two packets c) Single packet and probe loss}\label{timingNew}
-\end{figure}
-
-
-%\kern-1em
-\section{Evaluation of modified MPTCP TLP}\label{eval}
-
-\begin{figure*}[!tbp]
+\begin{figure*}
 \begin{subfigure}[b]{0.32\textwidth}
 \includegraphics[angle=0, width=\textwidth, natwidth=578.16,natheight=433.62]{plots/1PNew.pdf}
 \caption{Single packet}\label{1pn}
@@ -302,9 +295,19 @@ The current implementation of TLP is at the TCP flow level. In the event of RTO 
 \caption{Performance comparison of MPTCP-New with MPTCP and TCP}\label{mpnew}
 \end{figure*}
 
+
+
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[angle=0, width=0.46\textwidth]{images/timingER3.pdf}
+\end{center}
+\caption{Timing diagram of MPTCP behavior with proposed improvements with loss of a) Single packet b) Two packets c) Single packet and probe loss}\label{timingNew}
+\end{figure}
+
+%\kern-1em
+\section{Evaluation of modified MPTCP TLP}\label{eval}
+
 Results comparing the burst completion time for new MPTCP TLP with that of TCP and MPTCP TLP for the considered cases are provided in Figure~\ref{mpnew}. In Figure~\ref{1pn}, MPTCP-New performs better than TCP in all scenarios, performs equal to MPTCP in symmetric scenarios and performs better than MPTCP in asymmetric scenarios with a lower delay on the alternate path. This improvement is for the reason that MPTCP-New allows the packet to be retransmitted on the alternate path much before the RTO. In two packet tail loss scenario as in Figure~\ref{2pn}, MPTCP-New performs better than TCP in all scenarios and better than MPTCP in all scenarios except when the alternate path has a significantly higher delay than the original path, where performance is the same. In the single packet together with probe loss scenario as in Figure~\ref{1ppn}, MPTCP-New performs better than both MPTCP and TCP in all scenarios with PTO triggering the probe retransmission on alternate path much earlier than the RTO.
-
-
 
 
 %\kern-1em
