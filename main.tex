@@ -1,4 +1,4 @@
-\documentclass[10pt,conference,compsoc]{IEEEtran}
+\documentclass[10pt,conference]{IEEEtran}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage[nocompress]{cite}
@@ -52,12 +52,6 @@ The Linux implementation of MPTCP uses a set of retransmission heuristics to han
 
 This paper analyzes the performance of state of the art loss recovery mechanism of MPTCP and presents a case for improvement in the tail loss scenario.For understanding the loss recovery and retransmission policies in MPTCP Linux implementation version 0.91, we consider several specific cases of tail losses. We use the standard settings of the Linux kernel. The Linux implementation of TCP is considered as the baseline TCP retransmission for implementation flexibility and availability of TLP support.
 
-\begin{figure}[!ht]
-\begin{center}
-\includegraphics[angle=0, width=0.45\textwidth]{images/fortest.pdf}
-\caption{Topology used for Emulation}\label{fig1}
-\end{center}
-\end{figure}
 %\kern-1em
 \section{Experimental Setup}\label{exsetup}
 
@@ -67,9 +61,14 @@ Characteristics of the connection setup and assumptions about the parameters are
 %The parameters are chosen to be close to real values of bandwidth and delay of respective technologies.
 There is no attempt in this study to focus on the effect of link detailed characteristics in retransmission performance.
 
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[angle=0, width=0.45\textwidth]{images/fortest.pdf}
+\caption{Topology used for Emulation}\label{fig1}
+\end{center}
+\end{figure}
  
 \begin{center}
-
 \begin{table}
 \resizebox{0.45\textwidth}{!}{\begin{minipage}{0.45\textwidth}
 \small
@@ -107,10 +106,22 @@ ER and TLP, which may not be the case with other operating systems. In this pape
 
 The setup has server and client with Linux supporting MPTCP running on them. The Client has two interfaces with one way delay on each interface ranging from 20\,ms to 120\,ms. The intention is to evaluate the effect of symmetry, mild asymmetry and higher asymmetry in the link delays. We consider 5 scenarios with delay pairings 20\,ms-20\,ms, 20\,ms-30\,ms, 20\,ms-120\,ms, 30\,ms-20\,ms, 120\,ms-20\,ms to understand the effect of delay difference in the performance as shown in Table~\ref{tab1}.
 
-\kern-1em
 \section{Observations and Discussion}\label{disc}
 This section provides the performance analysis of TCP and MPTCP for the considered cases of single packet tail loss, two packet tail loss and retransmission or probe loss.
-\kern-5em
+\subsection{TCP}
+Retransmission behavior of TCP provides a base case for MPTCP performance as each individual MPTCP subflow is a TCP flow in itself. Our analysis
+starts with the results using TCP and compare it with that of MPTCP. Figure~\ref{tcpf} represent the comparison of TCP 
+burst completion times. Path asymmetry is irrelevant in this case as TCP uses a single path.
+
+In the case of single packet tail loss as shown in Figure~\ref{t1p}, there is no difference in burst completion times of RTO and TLP settings. The retransmission
+timeout and the probe timeout are the same as there is only one outstanding packet. This is a special case in the TLP
+specification that adds 200\,ms to the PTO accommodating the case of delayed ACKs. The TLP implementation in Linux accounts
+for the delayed ACK and waits 200\,ms before sending a probe. The minimum of PTO and RTO is considered for PTO. In the case of two packet tail loss as shown in Figure~\ref{t2p},
+TLP performs better than the RTO retransmission for lower delay values. As the delay on the loss path increases RTO retransmission performs slightly better than TLP. In 120\,ms case, PTO is very close to RTO expiration and the second packet is recovered using ER which incurs additional delay in case of TLP. In RTO retransmission, all unacknowledged packets are retransmitted on a RTO expiration. 
+
+Hence retransmission timeout is the mode of loss recovery in both RTO and TLP. This can be avoided by tuning
+the ACKs as discussed in~\cite{Rajiullah:2015}. In the case of two packet tail loss, TLP performs better than RTO retransmission as it employs a combination of TLP and ER to recover from losses. If the probe or retransmission is lost, then TLP still performs better than RTO retransmission as it waits for one probe timeout and one RTO experiation instead of two RTO expirations, thus avoiding the exponential backoff of the RTO.
+
 \begin{figure*}[!tbp]
  \begin{subfigure}[b]{0.32\textwidth}
 	\includegraphics[angle=0, width=\textwidth,natwidth=578.16,natheight=433.62]{plots/T1P.pdf}
@@ -128,20 +139,6 @@ This section provides the performance analysis of TCP and MPTCP for the consider
  \end{subfigure}
  \caption{Tail loss scenarios using TCP}\label{tcpf}
 \end{figure*}
-\subsection{TCP}
-Retransmission behavior of TCP provides a base case for MPTCP performance as each individual MPTCP subflow is a TCP flow in itself. Our analysis
-starts with the results using TCP and compare it with that of MPTCP. Figure~\ref{tcpf} represent the comparison of TCP 
-burst completion times. Path asymmetry is irrelevant in this case as TCP uses a single path.
-
-In the case of single packet tail loss as shown in Figure~\ref{t1p}, there is no difference in burst completion times of RTO and TLP settings. The retransmission
-timeout and the probe timeout are the same as there is only one outstanding packet. This is a special case in the TLP
-specification that adds 200\,ms to the PTO accommodating the case of delayed ACKs. The TLP implementation in Linux accounts
-for the delayed ACK and waits 200\,ms before sending a probe. The minimum of PTO and RTO is considered for PTO. In the case of two packet tail loss as shown in Figure~\ref{t2p},
-TLP performs better than the RTO retransmission for lower delay values. As the delay on the loss path increases RTO retransmission performs slightly better than TLP. In 120\,ms case, PTO is very close to RTO expiration and the second packet is recovered using ER which incurs additional delay in case of TLP. In RTO retransmission, all unacknowledged packets are retransmitted on a RTO expiration. 
-
-Hence retransmission timeout is the mode of loss recovery in both RTO and TLP. This can be avoided by tuning
-the ACKs as discussed in~\cite{Rajiullah:2015}. In the case of two packet tail loss, TLP performs better than RTO retransmission as it employs a combination of TLP and ER to recover from losses. If the probe or retransmission is lost, then TLP still performs better than RTO retransmission as it waits for one probe timeout and one RTO experiation instead of two RTO expirations, thus avoiding the exponential backoff of the RTO.
-
 %\kern-1em
 \subsection{MPTCP}
 
@@ -167,6 +164,15 @@ in Figure.~\ref{mptiming}. The actual pattern might differ in cases, where the R
  \caption{Timing diagrams of MPTCP behavior on tail losses with a) RTO b) TLP }\label{mptiming}	
 \end{figure*}
 
+
+MPTCP uses an RTT based scheduler by default, that uses the lowest RTT path among the available paths to transmit
+the data until its congestion window is full. Subsequently, the next lowest RTT path is chosen. MPTCP performance
+is sensitive to asymmetry in paths. The burst completion times on single packet tail loss calculated for each delay 
+configuration and retransmission setting is depicted in Figure~\ref{1p}. There is no difference in performance of RTO retransmission and TLP for 
+cases when both paths are symmetric or the first path has lowest RTT. RTO performs better than TLP when the first path is not the lowest RTT path. In such
+scenarios~(30\,ms-20\,ms,120\,ms-20\,ms), the RTO retransmission happens in the second path with lowest RTT following the behavior depicted
+in Figure~\ref{timing1P}.
+
 \renewcommand{\thesubfigure}{\alph{subfigure}}
 \begin{figure*}[!tbp]
  \begin{subfigure}[b]{0.32\textwidth}
@@ -185,15 +191,6 @@ in Figure.~\ref{mptiming}. The actual pattern might differ in cases, where the R
  \end{subfigure}
  \caption{Tail loss scenarios using MPTCP}
 \end{figure*}
-
-MPTCP uses an RTT based scheduler by default, that uses the lowest RTT path among the available paths to transmit
-the data until its congestion window is full. Subsequently, the next lowest RTT path is chosen. MPTCP performance
-is sensitive to asymmetry in paths. The burst completion times on single packet tail loss calculated for each delay 
-configuration and retransmission setting is depicted in Figure~\ref{1p}. There is no difference in performance of RTO retransmission and TLP for 
-cases when both paths are symmetric or the first path has lowest RTT. RTO performs better than TLP when the first path is not the lowest RTT path. In such
-scenarios~(30\,ms-20\,ms,120\,ms-20\,ms), the RTO retransmission happens in the second path with lowest RTT following the behavior depicted
-in Figure~\ref{timing1P}.
-
 
 
 
@@ -281,10 +278,6 @@ The current implementation of TLP is at the TCP flow level. In the event of RTO 
 %\kern-1em
 \section{Evaluation of modified MPTCP TLP}\label{eval}
 
-
-Results comparing the burst completion time for new MPTCP TLP with that of TCP and MPTCP TLP for the considered cases are provided in Figure~\ref{mpnew}. In Figure~\ref{1pn}, MPTCP-New performs better than TCP in all scenarios, performs equal to MPTCP in symmetric scenarios and performs better than MPTCP in asymmetric scenarios with a lower delay on the alternate path. This improvement is for the reason that MPTCP-New allows the packet to be retransmitted on the alternate path much before the RTO. In two packet tail loss scenario as in Figure~\ref{2pn}, MPTCP-New performs better than TCP in all scenarios and better than MPTCP in all scenarios except when the alternate path has a significantly higher delay than the original path, where performance is the same. In the single packet together with probe loss scenario as in Figure~\ref{1ppn}, MPTCP-New performs better than both MPTCP and TCP in all scenarios with PTO triggering the probe retransmission on alternate path much earlier than the RTO.
-
-
 \begin{figure*}[!tbp]
 \begin{subfigure}[b]{0.32\textwidth}
 \includegraphics[angle=0, width=\textwidth, natwidth=578.16,natheight=433.62]{plots/1PNew.pdf}
@@ -303,6 +296,10 @@ Results comparing the burst completion time for new MPTCP TLP with that of TCP a
 \caption{Performance comparison of MPTCP-New with MPTCP and TCP}\label{mpnew}
 \end{figure*}
 
+Results comparing the burst completion time for new MPTCP TLP with that of TCP and MPTCP TLP for the considered cases are provided in Figure~\ref{mpnew}. In Figure~\ref{1pn}, MPTCP-New performs better than TCP in all scenarios, performs equal to MPTCP in symmetric scenarios and performs better than MPTCP in asymmetric scenarios with a lower delay on the alternate path. This improvement is for the reason that MPTCP-New allows the packet to be retransmitted on the alternate path much before the RTO. In two packet tail loss scenario as in Figure~\ref{2pn}, MPTCP-New performs better than TCP in all scenarios and better than MPTCP in all scenarios except when the alternate path has a significantly higher delay than the original path, where performance is the same. In the single packet together with probe loss scenario as in Figure~\ref{1ppn}, MPTCP-New performs better than both MPTCP and TCP in all scenarios with PTO triggering the probe retransmission on alternate path much earlier than the RTO.
+
+
+
 
 %\kern-1em
 \section{Conclusion}\label{conc}
@@ -311,6 +308,9 @@ The three cases of tail loss together with deterministic loss patterns allow us 
 We propose a less conservative approach to trigger retransmission on an alternate path in the event of tail loss probe timeout, which otherwise triggered with an RTO. 
 Our emulation experiments  using a modified Linux implementation, show that the proposed approach in fact improves the burst completion time in most cases and equals the existing
 implementation in other cases. The proposed approach improves the performance when the alternate path has lower delay than the original loss path and the advantage increases with degree of asymmetry between the paths. Temporary path failures can cause probe loss along with packet loss. The approach is very effective in case of probe loss which otherwise incur RTO timeout to trigger retransmission on either path. However, the latency improvement comes at a cost of additional network traffic from the retransmitted packets. This study is limited to emulated synthetic traffic and static drop pattern that serve the purpose of localizing the loss events. A comprehensive study covering various traffic types and loss patterns is considered for future investigation. Further, we plan to investigate less conservative approaches for other retransmission events.
+
+\section*{Acknowledgment}
+This work was in part funded by The Knowledge Foundation (KKS) through the SIDUS READY project.
    
 %\kern-1em
 \bibliographystyle{IEEEtran}
